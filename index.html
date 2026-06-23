@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ucronia Brasilis - Protótipo V1</title>
+    <link rel="stylesheet" href="src/styles.css">
+    <!-- D3.js Library para renderização dinâmica do mapa -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Firebase SDK Compat para Autenticação e Cloud Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- Configuração do Firebase (Opcional - Fallback automático para LocalStorage/Modo Offline se não preenchido) -->
+    <script>
+        window.firebaseConfig = {
+            apiKey: "AIzaSyAICuci4SHdsFkhT6p1iMt67jPlHvb2R1M",
+            authDomain: "ucronia-brasilis.firebaseapp.com",
+            projectId: "ucronia-brasilis",
+            storageBucket: "ucronia-brasilis.firebasestorage.app",
+            messagingSenderId: "927826058502",
+            appId: "1:927826058502:web:c0b50e0f84cfdf15475287",
+            measurementId: "G-6EMHMSEVF3"
+        };
+    </script>
+</head>
+
+<body data-era="colonial">
+    <!-- TELA DE LOGIN / REGISTRO (Tema com gradiente dinâmico de eras) -->
+    <div id="auth-screen" class="timeline-auth-overlay">
+        <div class="auth-card">
+            <h1 class="auth-title">Ucronia Brasilis</h1>
+            <p class="auth-subtitle">Simulador de História Alternativa do Brasil</p>
+
+            <!-- Painel de Login -->
+            <div id="panel-login" class="auth-panel-content">
+                <form id="form-login" class="auth-form">
+                    <div class="input-group">
+                        <label for="login-email">E-mail</label>
+                        <input type="email" id="login-email" required placeholder="seuemail@exemplo.com">
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password">Senha</label>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-auth-submit">Entrar</button>
+                </form>
+                <div class="auth-switch">
+                    Não tem conta? <a href="#" id="link-go-to-register">Criar Conta</a>
+                </div>
+            </div>
+
+            <!-- Painel de Registro -->
+            <div id="panel-register" class="auth-panel-content" style="display: none;">
+                <form id="form-register" class="auth-form">
+                    <div class="input-group">
+                        <label for="register-username">Nome de Governante (ex: D. Pedro III)</label>
+                        <input type="text" id="register-username" required placeholder="Nome de Governante">
+                    </div>
+                    <div class="input-group">
+                        <label for="register-email">E-mail</label>
+                        <input type="email" id="register-email" required placeholder="seuemail@exemplo.com">
+                    </div>
+                    <div class="input-group">
+                        <label for="register-password">Senha</label>
+                        <input type="password" id="register-password" minlength="6" required
+                            placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <button type="submit" class="btn-auth-submit">Registrar e Governar</button>
+                </form>
+                <div class="auth-switch">
+                    Já tem conta? <a href="#" id="link-go-to-login">Entrar na Conta</a>
+                </div>
+            </div>
+
+            <div class="auth-divider">
+                <span>ou</span>
+            </div>
+
+            <button id="btn-login-guest" class="btn-auth-guest">Jogar Modo Offline (Salvar local)</button>
+            <p class="offline-disclaimer">Nota: Seus dados serão salvos localmente neste navegador.</p>
+        </div>
+    </div>
+
+    <!-- TELA DO MENU PRINCIPAL -->
+    <div id="menu-screen" class="timeline-auth-overlay" style="display: none;">
+        <div class="menu-card">
+            <h1 class="menu-title">Ucronia Brasilis</h1>
+            <p class="menu-welcome">Bem-vindo, <span id="menu-user-name">Governador</span>!</p>
+
+            <div class="menu-layout-grid">
+                <!-- Coluna de Opções -->
+                <div class="menu-options-column">
+                    <button id="btn-menu-novo-jogo" class="menu-btn-primary">Novo Jogo (Iniciar Era)</button>
+                    <button id="btn-menu-carregar-jogo" class="menu-btn-secondary">Carregar Jogo Salvo</button>
+                    <button id="btn-menu-manual" class="menu-btn-secondary">Manual de Governo (Tutorial)</button>
+                    <button id="btn-menu-logout" class="menu-btn-danger">Sair da Conta</button>
+                </div>
+
+                <!-- Coluna Visual de Eras (Timeline) -->
+                <div class="menu-timeline-column">
+                    <h3 class="timeline-title">Linha Temporal das Eras</h3>
+                    <div class="menu-timeline-steps">
+                        <div class="menu-timeline-step active" data-era-start="colonial">
+                            <div class="step-bullet"></div>
+                            <div class="step-content">
+                                <span class="step-era-title">1530 — Era Colonial</span>
+                                <span class="step-era-status">✅ Disponível</span>
+                            </div>
+                        </div>
+                        <div class="menu-timeline-step active" data-era-start="imperio">
+                            <div class="step-bullet"></div>
+                            <div class="step-content">
+                                <span class="step-era-title">1822 — Era do Império</span>
+                                <span class="step-era-status">✅ Disponível</span>
+                            </div>
+                        </div>
+                        <div class="menu-timeline-step locked">
+                            <div class="step-bullet"></div>
+                            <div class="step-content">
+                                <span class="step-era-title">1889 — Era da República</span>
+                                <span class="step-era-status">🔒 Em Desenvolvimento</span>
+                            </div>
+                        </div>
+                        <div class="menu-timeline-step locked">
+                            <div class="step-bullet"></div>
+                            <div class="step-content">
+                                <span class="step-era-title">1985 — Era Moderna</span>
+                                <span class="step-era-status">🔒 Em Desenvolvimento</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SELETOR DE ERA PARA NOVO JOGO -->
+    <div id="modal-selecao-era" class="fullscreen-overlay"
+        style="display: none; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+        <div class="modal-box"
+            style="width: 500px; max-width: 90%; background: var(--bg-color); border: 2px solid var(--header-color); border-radius: 12px; padding: 25px; color: var(--text-color);">
+            <h2
+                style="color: var(--header-color); margin-top: 0; font-family: var(--header-font-family); text-align: center;">
+                Escolha a Era de Início</h2>
+            <p style="font-size: 13px; opacity: 0.9; text-align: center; margin-bottom: 20px;">Selecione o período
+                inicial da sua simulação:</p>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                <button class="btn-era-select-choice" data-era="colonial"
+                    style="padding: 12px 16px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--panel-border); border-radius: 8px; cursor: pointer; color: var(--text-color);">
+                    <strong style="display: block; font-size: 14px; color: var(--header-color);">⛵ 1530 — Era
+                        Colonial</strong>
+                    <span
+                        style="font-size: 11px; opacity: 0.8; display: block; margin-top: 4px; line-height: 1.3;">Inicie
+                        com as Capitanias Hereditárias, administre o açúcar, financie as Bandeiras e enfrente as
+                        invasões estrangeiras.</span>
+                </button>
+
+                <button class="btn-era-select-choice" data-era="imperio"
+                    style="padding: 12px 16px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--panel-border); border-radius: 8px; cursor: pointer; color: var(--text-color);">
+                    <strong style="display: block; font-size: 14px; color: var(--header-color);">👑 1822 — Era do
+                        Império</strong>
+                    <span
+                        style="font-size: 11px; opacity: 0.8; display: block; margin-top: 4px; line-height: 1.3;">Inicie
+                        após a Independência com 19 Províncias, gerencie o ciclo do café, use o Poder Moderador e
+                        contenha as revoltas regenciais.</span>
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-cancelar-selecao-era"
+                    style="width: 100%; padding: 10px; background-color: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DO MANUAL / TUTORIAL -->
+    <div id="modal-manual-tutorial" class="fullscreen-overlay"
+        style="display: none; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+        <div class="modal-box"
+            style="width: 600px; max-width: 90%; background: var(--bg-color); border: 2px solid var(--header-color); border-radius: 12px; padding: 25px; color: var(--text-color); max-height: 80vh; display: flex; flex-direction: column;">
+            <h2
+                style="color: var(--header-color); margin-top: 0; font-family: var(--header-font-family); text-align: center; border-bottom: 1px dashed var(--panel-border); padding-bottom: 10px;">
+                📖 Manual de Instruções do Governante</h2>
+            <div
+                style="flex: 1; overflow-y: auto; text-align: left; padding: 10px; font-size: 12.5px; line-height: 1.6; color: var(--text-color);">
+                <h3 style="color: var(--header-color); margin-top: 5px;">🏛️ 1. O Seu Papel</h3>
+                <p>Você assume o governo geral do Brasil. Seu objetivo é desenvolver a economia, expandir a
+                    infraestrutura e manter a estabilidade social (baixo descontentamento) sem falir o Tesouro Nacional.
+                </p>
+
+                <h3 style="color: var(--header-color);">📊 2. Gestão das Capitanias e Províncias</h3>
+                <p>Cada região possui PIB, Taxa de Imposto e Nível de Revolta específicos. Você pode investir em:</p>
+                <ul>
+                    <li><strong>Estradas</strong>: Aumentam o crescimento do PIB local e nacional. Máximo Nível 5.</li>
+                    <li><strong>Portos</strong>: Aumentam muito a receita comercial. Apenas regiões costeiras podem ter
+                        portos. Máximo Nível 5.</li>
+                    <li><strong>Milícias / Defesa</strong>: Reduzem ativamente o nível de revolta local e fornecem
+                        defesa contra revoltas históricas ou invasões. Máximo Nível 5.</li>
+                </ul>
+
+                <h3 style="color: var(--header-color);">💰 3. Finanças Públicas</h3>
+                <p>Investir custa dinheiro (Contos de Réis), que aumenta conforme o nível atual da melhoria. Além disso,
+                    cada infraestrutura construída gera um custo anual de <strong>manutenção</strong>. O
+                    descontentamento local aumenta se você cobrar impostos muito altos ou se a região sofrer invasões.
+                </p>
+
+                <h3 style="color: var(--header-color);">⚡ 4. Eventos e Bifurcações</h3>
+                <p>Ao avançar os anos, eventos surgirão. Suas escolhas geram consequências imediatas ou de longo prazo,
+                    alterando o rumo da história brasileira de forma ucrônica (fictícia) ou histórica. Resista a
+                    invasões, decida leis e guie o país rumo ao progresso!</p>
+            </div>
+            <button id="btn-fechar-manual"
+                style="margin-top: 15px; width: 100%; padding: 10px; background-color: var(--header-color); color: var(--bg-color); border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Entendido</button>
+        </div>
+    </div>
+
+    <!-- CONTAINER PRINCIPAL DO JOGO (Carrega escondido por padrão) -->
+    <div class="app-container" id="app-game-container" style="display: none;">
+        <div class="col-left">
+            <!-- MENU DE ABAS — FIXO NO TOPO -->
+            <div class="tab-menu">
+                <button class="tab-btn active" data-tab="tab-governo">🏛️ Governo</button>
+                <button class="tab-btn" data-tab="tab-territorios">🗺️ Territórios</button>
+                <button class="tab-btn" data-tab="tab-economia">📊 Economia</button>
+                <button class="tab-btn" data-tab="tab-ucronia">🌎 Ucronia</button>
+                <button class="tab-btn" data-tab="tab-biblioteca" id="tab-btn-biblioteca">📚 Biblioteca</button>
+                <button class="tab-btn" id="btn-open-diario"
+                    style="margin-left: auto; flex: none; font-size: 14px !important;"
+                    data-tooltip-game="📜 &lt;strong&gt;Diário de Bordo&lt;/strong&gt;&lt;br&gt;Acesse o histórico de acontecimentos, decisões e dados do seu governo ano a ano.">📜</button>
+                <button class="tab-btn" id="btn-toggle-audio" style="flex: none; font-size: 14px !important;"
+                    data-tooltip-game="🔊 &lt;strong&gt;Som&lt;/strong&gt;&lt;br&gt;Ativar/Desativar efeitos sonoros.">🔊</button>
+            </div>
+
+            <!-- ÁREA DE CONTEÚDO COM SCROLL PRÓPRIO -->
+            <div class="tab-content-wrapper">
+
+                <!-- CONTEÚDO DA ABA GOVERNO -->
+                <div id="tab-governo" class="tab-content active">
+                    <div class="header">
+                        <h1>Ucronia Brasilis</h1>
+
+                        <!-- SELETOR DE LAYOUT/TEMA -->
+                        <div class="theme-selector"
+                            style="margin-bottom: 15px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                            data-tooltip-game="🎨 &lt;strong&gt;Estilo de Interface&lt;/strong&gt;&lt;br&gt;Alterne entre a interface clássica imersiva (Histórica, inspirada em pergaminhos coloniais) e a interface escura (Moderna, ideal para melhor leitura dos dados).">
+                            <label for="select-theme" style="opacity: 0.8;">Interface:</label>
+                            <select id="select-theme"
+                                style="background: var(--btn-bg); color: var(--btn-text); border: 1px solid var(--panel-border); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-family: inherit; font-size: 11px;">
+                                <option value="historico">Imersivo (Histórico)</option>
+                                <option value="moderno">Moderno (Escuro)</option>
+                            </select>
+                        </div>
+
+                        <div class="stats">
+                            <div
+                                data-tooltip-game="📅 &lt;strong&gt;Ano Corrente&lt;/strong&gt;&lt;br&gt;A data atual do simulador. O jogo avança através de ciclos anuais. Cada turno atualiza a economia, tributos e pode disparar eventos históricos ou fictícios.">
+                                Ano: <span id="ano_atual" style="color: inherit">-</span></div>
+                            <div
+                                data-tooltip-game="💰 &lt;strong&gt;Tesouro Nacional&lt;/strong&gt;&lt;br&gt;Saldo dos cofres públicos da União/Coroa em Contos de Réis. Aumenta com os impostos recolhidos das regiões e diminui com investimentos em infraestrutura, manutenção de milícias locais e juros de empréstimos.">
+                                Tesouro: $<span id="tesouro_nacional">-</span></div>
+                        </div>
+
+                        <!-- BARRA DE PROGRESSO DA ERA -->
+                        <div class="era-progresso-container"
+                            data-tooltip-game="📈 &lt;strong&gt;Progresso da Era Atual&lt;/strong&gt;&lt;br&gt;Indica a evolução temporal ao longo da era atual. Os marcadores circulares na barra indicam anos em que ocorrerão eventos de bifurcação histórica fixados importantes (passe o mouse sobre eles no mapa ou na barra para detalhes).">
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; opacity: 0.8;">
+                                <span id="progresso-era-inicio">1530</span>
+                                <span id="progresso-era-atual">Ano 1530 (0%)</span>
+                                <span id="progresso-era-fim">1822</span>
+                            </div>
+                            <div class="era-barra-bg">
+                                <div id="era-barra-preenchimento" class="era-barra-preenchimento" style="width: 0%;">
+                                </div>
+                            </div>
+                        </div>
+                        <button id="btn-bandeiras"
+                            data-tooltip-game="🗺️ &lt;strong&gt;Financiar Bandeiras&lt;/strong&gt;&lt;br&gt;Envia expedições ao interior do Brasil, aumentando o investimento em exploração. Desbloqueia o Ciclo do Ouro (séc. XVIII) e gera grande riqueza futura.&lt;br&gt;&lt;br&gt;⚠️ Ação &lt;strong&gt;única por era&lt;/strong&gt; — use com sabedoria! Custo: $50 Contos."
+                            style="margin-top: 15px; width: 100%; background-color: var(--panel-border); color: var(--text-color);">Financiar
+                            Bandeiras (+50 Contos)</button>
+                        <button id="btn-bailout"
+                            data-tooltip-game="⚠️ &lt;strong&gt;Socorro de Emergência&lt;/strong&gt;&lt;br&gt;Recebe dinheiro imediato da Coroa ou de banqueiros estrangeiros, mas ao custo de:&lt;br&gt;• Aumento de revolta em todas as regiões&lt;br&gt;• Dívida anual por 20-25 anos&lt;br&gt;&lt;br&gt;Use apenas em situações críticas!"
+                            style="margin-top: 10px; width: 100%; display: none; background-color: #fab387; color: #11111b; font-weight: bold;">Solicitar
+                            Socorro Régio</button>
+                        <!-- PODER MODERADOR (Apenas Era do Império) -->
+                        <div id="painel-poder-moderador"
+                            style="display: none; flex-direction: column; gap: 8px; margin-top: 12px; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.1); text-align: left;">
+                            <strong
+                                style="font-size: 12px; color: var(--header-color); text-align: center; display: block; margin-bottom: 5px;">👑
+                                Poder Moderador</strong>
+                            <button id="btn-decretar-impostos"
+                                data-tooltip-game="👑 &lt;strong&gt;Decretar Impostos Extraordinários&lt;/strong&gt;&lt;br&gt;O Imperador decreta tributos extraordinários de emergência.&lt;br&gt;• Ganho imediato de &lt;strong&gt;+150 Contos&lt;/strong&gt; ao Tesouro.&lt;br&gt;• Aumenta a revolta em &lt;strong&gt;+10%&lt;/strong&gt; em todas as províncias devido ao autoritarismo."
+                                style="width: 100%; background-color: #fab387; color: #3b2f2f; font-size: 11px; padding: 8px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer;">Decretar
+                                Impostos (+150)</button>
+                            <button id="btn-dissolver-assembleia"
+                                data-tooltip-game="👑 &lt;strong&gt;Dissolver Assembleia Geral&lt;/strong&gt;&lt;br&gt;O Imperador dissolve o Parlamento para restaurar a ordem pública.&lt;br&gt;• Reduz a revolta em &lt;strong&gt;-15%&lt;/strong&gt; em todas as províncias.&lt;br&gt;• Custo político e diplomático de &lt;strong&gt;-80 Contos&lt;/strong&gt; do Tesouro."
+                                style="width: 100%; background-color: #f38ba8; color: #11111b; font-size: 11px; padding: 8px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer;">Dissolver
+                                Assembleia (-80)</button>
+                        </div>
+                        <button id="btn-avancar"
+                            data-tooltip-game="⏩ &lt;strong&gt;Avançar 1 Ano&lt;/strong&gt;&lt;br&gt;Simula um ano de governo: impostos são coletados, o PIB de cada capitania cresce ou decresce, e eventos históricos podem ocorrer — incluindo escolhas que bifurcam a história."
+                            style="margin-top: 15px; width: 100%;">Avançar 1 Ano</button>
+
+                        <!-- CONTROLE DE PROGRESSO (Save / Load / Reset) -->
+                        <div class="progresso-controles">
+                            <button id="btn-salvar">Salvar</button>
+                            <button id="btn-carregar">Carregar</button>
+                            <button id="btn-reiniciar">Reiniciar</button>
+                        </div>
+
+                        <!-- RANKINGS DE ERAS -->
+                        <div id="ranking-container"
+                            style="margin-top: 15px; border-top: 1px solid var(--panel-border); padding-top: 10px;"
+                            data-tooltip-game="🏆 &lt;strong&gt;Recordes de Eras&lt;/strong&gt;&lt;br&gt;Exibe as melhores pontuações de eras anteriores salvas localmente no navegador. Pontuações são baseadas em PIB total, Tesouro e baixo índice de revolta no fim da era.">
+                            <h3
+                                style="font-size: 13px; margin: 5px 0; color: var(--header-color); display: flex; justify-content: space-between; align-items: center;">
+                                <span>🏆 Recordes de Eras</span>
+                                <span id="btn-limpar-rankings"
+                                    style="font-size: 9px; opacity: 0.6; cursor: pointer; text-decoration: underline;">Limpar</span>
+                            </h3>
+                            <ul id="ranking-list"
+                                style="list-style: none; padding: 0; margin: 0; font-size: 11px; max-height: 100px; overflow-y: auto;">
+                                <li style="opacity: 0.6; text-align: center; padding: 5px 0;">Nenhum recorde registrado
+                                    ainda</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTEÚDO DA ABA TERRITÓRIOS -->
+                <div id="tab-territorios" class="tab-content">
+                    <div id="cards-container">
+                        <!-- Filtro por Região -->
+                        <div id="filtro-regioes">
+                            <button id="filtro-todos" class="ativo">Todos</button>
+                            <button id="filtro-norte">Norte</button>
+                            <button id="filtro-nordeste">Nordeste</button>
+                            <button id="filtro-leste">Leste</button>
+                            <button id="filtro-sudeste">Sudeste</button>
+                        </div>
+                        <!-- Cartões populados via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- CONTEÚDO DA ABA ECONOMIA -->
+                <div id="tab-economia" class="tab-content">
+                    <div class="header">
+                        <h2 style="font-size: 16px; margin-bottom: 5px;">Relatório Econômico</h2>
+                        <p style="font-size: 11px; opacity: 0.8; margin-bottom: 15px;">Visão geral de PIB, impostos e
+                            descontentamento regional.</p>
+
+                        <div class="economia-resumo-grid"
+                            style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <div
+                                style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 8px; border: 1px solid var(--panel-border); text-align: center;">
+                                <span style="font-size: 10px; opacity: 0.8; display: block; margin-bottom: 2px;">PIB
+                                    Nacional</span>
+                                <strong id="pib-nacional-total"
+                                    style="font-size: 16px; color: var(--header-color);">$0.00</strong>
+                            </div>
+                            <div
+                                style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 8px; border: 1px solid var(--panel-border); text-align: center;">
+                                <span style="font-size: 10px; opacity: 0.8; display: block; margin-bottom: 2px;">Média
+                                    de Revolta</span>
+                                <strong id="revolta-media-nacional" style="font-size: 16px; color: #f38ba8;">0%</strong>
+                            </div>
+                        </div>
+
+                        <!-- CONTROLE MACRO DE TRIBUTOS -->
+                        <div class="macro-tributos"
+                            style="background: rgba(0,0,0,0.1); padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); margin-bottom: 15px; text-align: left;"
+                            data-tooltip-game="⚙️ &lt;strong&gt;Alíquota Fiscal Geral&lt;/strong&gt;&lt;br&gt;Ajuste a alíquota de impostos de todas as capitanias simultaneamente. Alíquotas altas aumentam a arrecadação, mas também elevam a revolta local.">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <strong style="font-size: 12px; color: var(--header-color);">Alíquota Fiscal
+                                    Geral</strong>
+                                <span id="aliquota-geral-valor" style="font-size: 12px; font-weight: bold;">10%</span>
+                            </div>
+                            <input type="range" id="slider-aliquota-geral" min="0" max="40" value="10" step="1"
+                                style="width: 100%; cursor: pointer; accent-color: var(--header-color);">
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="economia-table"
+                                style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--panel-border); opacity: 0.8;">
+                                        <th style="padding: 6px 4px;">Território</th>
+                                        <th style="padding: 6px 4px; text-align: right;">PIB Local</th>
+                                        <th style="padding: 6px 4px; text-align: right;">Imposto</th>
+                                        <th style="padding: 6px 4px; text-align: right;">Revolta</th>
+                                        <th style="padding: 6px 4px; text-align: right;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="economia-table-body">
+                                    <!-- Preenchido via Javascript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTEÚDO DA ABA UCRONIA -->
+                <div id="tab-ucronia" class="tab-content">
+                    <div class="header" style="margin-bottom: 15px;">
+                        <h2>Divergência Histórica</h2>
+                        <p style="font-size: 11px; opacity: 0.8; margin-bottom: 0;">Acompanhe o quanto sua linha
+                            temporal está se afastando da história real do Brasil.</p>
+                    </div>
+
+                    <div id="ucronia-calibragem-mensagem"
+                        style="display: none; background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 30px; text-align: center; color: var(--text-color); box-shadow: var(--panel-shadow);">
+                        <!-- Conteúdo dinâmico -->
+                    </div>
+                    <div class="ucronia-painel">
+                        <!-- Gauge e Dimensões (Grid Superior) -->
+                        <div class="ucronia-grid-superior">
+                            <!-- Card do Gauge -->
+                            <div class="ucronia-card-gauge">
+                                <div class="gauge-container">
+                                    <svg id="ucronia-gauge" viewBox="0 0 200 110"></svg>
+                                </div>
+                                <div class="gauge-valor" id="ucronia-divergencia-valor">0%</div>
+                                <div class="gauge-status" id="ucronia-divergencia-status">Próximo da História Real</div>
+                            </div>
+
+                            <!-- Card de Dimensões de Divergência -->
+                            <div class="ucronia-card-dimensoes">
+                                <h3>Métricas de Divergência</h3>
+                                <div class="dimensoes-lista" id="ucronia-dimensoes-lista">
+                                    <!-- Preenchido dinamicamente via JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico D3 de Linha Temporal -->
+                        <div class="ucronia-card-chart">
+                            <h3>Trajetória da Linha Temporal</h3>
+                            <div class="chart-container">
+                                <svg id="ucronia-chart" width="100%" height="220" viewBox="0 0 420 220"
+                                    preserveAspectRatio="xMidYMid meet"></svg>
+                                <div id="chart-tooltip" class="chart-tooltip" style="opacity: 0;"></div>
+                            </div>
+                            <div class="chart-legenda">
+                                <span class="legenda-faixa faixa-verde"></span> <span>Próximo (0-20%)</span>
+                                <span class="legenda-faixa faixa-amarela"></span> <span>Moderado (20-50%)</span>
+                                <span class="legenda-faixa faixa-vermelha"></span> <span>Ucrônico (50-100%)</span>
+                            </div>
+                        </div>
+
+                        <!-- Diário de Decisões -->
+                        <div class="ucronia-card-decisoes">
+                            <h3>Diário de Decisões Históricas</h3>
+                            <div class="table-scroll">
+                                <table class="ucronia-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Ano</th>
+                                            <th>Evento</th>
+                                            <th>Sua Escolha</th>
+                                            <th>Tipo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ucronia-decisoes-body">
+                                        <!-- Preenchido via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Comparação Lado a Lado -->
+                        <div class="ucronia-card-comparacao">
+                            <h3>Comparação Lado a Lado (Ano Atual)</h3>
+                            <div class="table-scroll">
+                                <table class="ucronia-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Métrica</th>
+                                            <th style="text-align: right;">História Real</th>
+                                            <th style="text-align: right;">Sua Nação</th>
+                                            <th style="text-align: right;">Diferença</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ucronia-comparacao-body">
+                                        <!-- Preenchido via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTEÚDO DA ABA BIBLIOTECA -->
+                <div id="tab-biblioteca" class="tab-content">
+                    <div class="header" style="margin-bottom: 15px;">
+                        <h2>📚 Biblioteca Histórica</h2>
+                        <p style="font-size: 11px; opacity: 0.8; margin-bottom: 10px;">Enciclopédia in-game com
+                            informações históricas reais do Brasil.</p>
+                        <input type="text" id="biblioteca-busca" placeholder="🔍 Buscar na enciclopédia..."
+                            style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(0,0,0,0.15); color: var(--text-color); font-size: 12px; font-family: inherit; box-sizing: border-box;">
+                    </div>
+                    <div id="biblioteca-conteudo">
+                        <!-- Seção Linha do Tempo -->
+                        <div class="biblioteca-secao" id="biblioteca-secao-timeline">
+                            <button class="biblioteca-secao-header" data-secao="timeline-body">
+                                <span>📜 Linha do Tempo</span>
+                                <span class="biblioteca-seta">▼</span>
+                            </button>
+                            <div id="timeline-body" class="biblioteca-secao-body aberto"></div>
+                        </div>
+                        <!-- Seção Ciclos Econômicos -->
+                        <div class="biblioteca-secao" id="biblioteca-secao-ciclos">
+                            <button class="biblioteca-secao-header" data-secao="ciclos-body">
+                                <span>💰 Ciclos Econômicos</span>
+                                <span class="biblioteca-seta">▼</span>
+                            </button>
+                            <div id="ciclos-body" class="biblioteca-secao-body aberto"></div>
+                        </div>
+                        <!-- Seção Personalidades -->
+                        <div class="biblioteca-secao" id="biblioteca-secao-personalidades">
+                            <button class="biblioteca-secao-header" data-secao="personalidades-body">
+                                <span>👤 Personalidades Históricas</span>
+                                <span class="biblioteca-seta">▼</span>
+                            </button>
+                            <div id="personalidades-body" class="biblioteca-secao-body aberto"></div>
+                        </div>
+                        <!-- Seção Territórios -->
+                        <div class="biblioteca-secao" id="biblioteca-secao-territorios">
+                            <button class="biblioteca-secao-header" data-secao="territorios-body">
+                                <span>🗺️ Enciclopédia de Territórios</span>
+                                <span class="biblioteca-seta">▼</span>
+                            </button>
+                            <div id="territorios-body" class="biblioteca-secao-body aberto"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTÃO VOLTAR AO TOPO -->
+                <button id="btn-scroll-top" class="scroll-to-top-btn" title="Voltar ao Topo"
+                    style="display: none;">▲</button>
+            </div><!-- fim .tab-content-wrapper -->
+        </div>
+
+        <div class="col-right">
+            <!-- Controles de Zoom Flutuantes -->
+            <div class="map-zoom-controls">
+                <button id="btn-zoom-in" title="Aumentar Zoom">+</button>
+                <button id="btn-zoom-out" title="Diminuir Zoom">-</button>
+                <button id="btn-zoom-reset" title="Resetar Zoom">🔄</button>
+            </div>
+
+            <!-- Legenda Dinâmica Flutuante -->
+            <div id="map-legend" class="map-legend">
+                <!-- Preenchido via Javascript -->
+            </div>
+
+            <!-- Mapa Interativo D3 -->
+            <svg id="mapa-d3" viewBox="0 0 500 720" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <filter id="sombra-estado">
+                        <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.3" />
+                    </filter>
+                </defs>
+                <!-- Grupo Zoom/Pan -->
+                <g id="map-zoom-group">
+                    <g id="mapa-regioes"></g>
+                    <g id="mapa-infraestrutura"></g>
+                    <g id="mapa-portos"></g>
+                    <g id="mapa-rotulos"></g>
+                    <g id="mapa-estradas"></g>
+                    <g id="mapa-cidades"></g>
+                </g>
+                <!-- Rótulo da Era (fixo fora do zoom) -->
+                <text id="mapa-era-label" x="250" y="705" text-anchor="middle" font-size="12" opacity="0.6"
+                    fill="currentColor" style="font-weight: bold;"></text>
+            </svg>
+            <!-- Tooltip flutuante sobre o mapa -->
+            <div id="mapa-tooltip"><span id="mapa-tooltip-text"></span></div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION (Discreto) -->
+    <div id="toast-container"
+        style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: var(--panel-bg); border: 1px solid var(--header-color); padding: 10px 20px; border-radius: 8px; z-index: 10000; display: none; backdrop-filter: blur(8px);">
+        <span id="toast-message" style="color: var(--text-color);"></span>
+    </div>
+
+    <!-- MODAL POPUP (Centralizado e Travando a Tela) -->
+    <div id="modal-conselho">
+        <div class="modal-box">
+            <h2 id="modal-title" style="color: var(--header-color); margin-top: 0;">Mensagem do Conselho</h2>
+            <div id="modal-content" style="margin: 20px 0; font-size: 16px; text-align: left; line-height: 1.5;"></div>
+
+            <div id="modal-config-area" style="margin: 20px 0; font-size: 14px; text-align: left;">
+                <input type="checkbox" id="chk-silenciar-conselho">
+                <label for="chk-silenciar-conselho">Não exibir mais janelas pop-up (mostrar apenas no topo)</label>
+            </div>
+
+            <button id="btn-fechar-modal"
+                style="width: 100%; padding: 10px; background-color: var(--header-color); color: var(--bg-color); border: none; border-radius: 4px; cursor: pointer;">Entendido</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE TRANSICAO DE ERA (Narrativo e Imersivo) -->
+    <div id="modal-transicao-era"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(10px);">
+        <div id="modal-transicao-inner"
+            style="width: 600px; max-width: 94vw; max-height: 92vh; overflow-y: auto; background: var(--panel-bg); border: 2px solid var(--header-color); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.7); text-align: center; display: flex; flex-direction: column;">
+
+            <!-- Banner de Imagem com gradiente inferior -->
+            <div id="transicao-banner-wrapper"
+                style="position: relative; width: 100%; height: 220px; overflow: hidden; border-radius: 14px 14px 0 0; flex-shrink: 0;">
+                <img id="transicao-banner-img" src="assets/img/eventos/independencia.png" alt="Independencia do Brasil"
+                    style="width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block;">
+                <div
+                    style="position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: linear-gradient(to bottom, transparent, var(--panel-bg));">
+                </div>
+                <div id="transicao-badge-tipo"
+                    style="position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.65); border: 1px solid var(--header-color); border-radius: 20px; padding: 4px 14px; font-size: 11px; font-weight: bold; color: var(--header-color); backdrop-filter: blur(4px);">
+                    &#x2705; Historica</div>
+            </div>
+
+            <!-- Corpo do modal -->
+            <div style="padding: 20px 28px 28px; display: flex; flex-direction: column; gap: 16px;">
+
+                <!-- Titulo e narrativa -->
+                <div>
+                    <h2 id="transicao-titulo"
+                        style="color: var(--header-color); margin: 0 0 10px; font-family: 'Cinzel', 'Playfair Display', serif; font-size: 22px;">
+                        Fim da Era Colonial</h2>
+                    <p id="transicao-narrativa"
+                        style="font-size: 13px; line-height: 1.65; color: var(--text-color); opacity: 0.9; margin: 0; text-align: left; background: rgba(0,0,0,0.12); padding: 12px 16px; border-radius: 8px; border-left: 3px solid var(--header-color);">
+                    </p>
+                </div>
+
+                <!-- Grid de Metricas -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                    <div
+                        style="background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px 6px; text-align: center;">
+                        <div style="font-size: 10px; opacity: 0.65; margin-bottom: 4px;">&#x1F4C5; Ano</div>
+                        <div id="transicao-ano" style="font-size: 15px; font-weight: bold; color: var(--header-color);">
+                            -</div>
+                    </div>
+                    <div
+                        style="background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px 6px; text-align: center;">
+                        <div style="font-size: 10px; opacity: 0.65; margin-bottom: 4px;">&#x1F4B0; Tesouro</div>
+                        <div id="transicao-tesouro" style="font-size: 14px; font-weight: bold; color: #a6e3a1;">-</div>
+                    </div>
+                    <div
+                        style="background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px 6px; text-align: center;">
+                        <div style="font-size: 10px; opacity: 0.65; margin-bottom: 4px;">&#x1F4C8; PIB</div>
+                        <div id="transicao-pib" style="font-size: 14px; font-weight: bold; color: #89dceb;">-</div>
+                    </div>
+                    <div
+                        style="background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px 6px; text-align: center;">
+                        <div style="font-size: 10px; opacity: 0.65; margin-bottom: 4px;">&#x1F3C6; Prestigio</div>
+                        <div id="transicao-pontos" style="font-size: 14px; font-weight: bold; color: #f9e2af;">-</div>
+                    </div>
+                </div>
+
+                <!-- Badge de Divergencia Historica -->
+                <div
+                    style="display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(0,0,0,0.12); border-radius: 8px; padding: 10px;">
+                    <span style="font-size: 12px; opacity: 0.7;">Divergencia da Linha Real:</span>
+                    <span id="transicao-divergencia"
+                        style="font-size: 14px; font-weight: bold; color: #cba6f7;">0%</span>
+                    <span id="transicao-divergencia-label"
+                        style="font-size: 11px; opacity: 0.75; font-style: italic;">(Proximo da Historia Real)</span>
+                </div>
+
+                <!-- Caminhos para proxima era -->
+                <div style="border-top: 1px solid var(--panel-border); padding-top: 14px;">
+                    <h3 id="transicao-caminhos-titulo"
+                        style="font-size: 14px; margin: 0 0 12px; color: var(--text-color); opacity: 0.9;">Escolha o
+                        Caminho para a Proxima Era</h3>
+                    <div id="transicao-caminhos-botoes" style="display: flex; gap: 12px; flex-direction: column;">
+                        <button id="btn-transicao-ucronica" class="btn-escolha"
+                            style="padding: 14px 16px; text-align: left; border: 1px solid var(--header-color); border-radius: 10px; background: rgba(255,255,255,0.04); color: var(--text-color); cursor: pointer; transition: all 0.2s; font-family: inherit;">
+                            <strong
+                                style="display: block; font-size: 14px; color: var(--header-color); margin-bottom: 5px;">&#x1F33F;
+                                Caminho Ucronico &mdash; Heranca Acumulada</strong>
+                            <span style="font-size: 11px; opacity: 0.8; display: block; line-height: 1.4;">A proxima era
+                                herda o Tesouro, PIB e toda a infraestrutura construida. Os avancos da Era Colonial
+                                moldam a historia alternativa.</span>
+                        </button>
+                        <button id="btn-transicao-canonica" class="btn-escolha"
+                            style="padding: 14px 16px; text-align: left; border: 1px solid var(--panel-border); border-radius: 10px; background: rgba(255,255,255,0.03); color: var(--text-color); cursor: pointer; transition: all 0.2s; font-family: inherit;">
+                            <strong
+                                style="display: block; font-size: 14px; color: var(--header-color); margin-bottom: 5px;">&#x1F4DC;
+                                Caminho Canonico &mdash; Historia Real</strong>
+                            <span style="font-size: 11px; opacity: 0.8; display: block; line-height: 1.4;">A proxima era
+                                comeca com os dados historicos reais de 1822. O jogo recalibra para a linha do tempo
+                                oficial do Brasil Imperial.</span>
+                        </button>
+                    </div>
+                    <div id="transicao-gameover-botoes" style="display: none; gap: 12px; flex-direction: column;">
+                        <button id="btn-transicao-gameover-reiniciar"
+                            style="width: 100%; padding: 14px 16px; font-weight: bold; font-size: 14px; border: none; border-radius: 10px; background: #f38ba8; color: #11111b; cursor: pointer; font-family: inherit;">
+                            🔄 Reiniciar Simulador (Voltar a 1530)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EVENTO DE BIFURCAÇÃO (Escolha Estratégica) -->
+    <div id="modal-evento-bifurcacao"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(10px);">
+        <div class="modal-bifurcacao-content" id="bifurcacao-modal-content">
+            <!-- Gerado dinamicamente via view.js -->
+        </div>
+    </div>
+
+    <!-- MODAL DAS BANDEIRAS (Confirmação Estilo-Evento) -->
+    <div id="modal-bandeiras"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(10px);">
+        <div class="modal-bifurcacao-content">
+            <div class="evento-banner-wrapper">
+                <img src="assets/img/bandeiras_modal.png" alt="Expedição Bandeirante" class="evento-banner"
+                    onerror="this.closest('.evento-banner-wrapper').style.display='none'">
+            </div>
+            <div class="evento-corpo" style="padding: 20px 30px 30px 30px;">
+                <div class="evento-header">
+                    <span class="evento-ano-badge" id="bandeiras-modal-ano">1530</span>
+                    <h2 style="margin: 0; font-family: inherit;">🗺️ Expedições Bandeirantes</h2>
+                </div>
+                <p style="margin: 15px 0; line-height: 1.6; font-size: 14px;">
+                    Os <strong>Bandeirantes</strong> são exploradores que adentram o interior do Brasil em busca de
+                    riquezas e novos territórios. Financiar essas expedições custará <strong>$50 Contos</strong> agora,
+                    mas abrirá caminho para o valiosíssimo Ciclo do Ouro nas próximas gerações.
+                </p>
+                <div class="bandeiras-pros-contras">
+                    <div class="bandeiras-pros">
+                        <h4>✅ Vantagens</h4>
+                        <ul>
+                            <li>Desbloqueia o <strong>Ciclo do Ouro</strong> (a partir de 1690): +15% PIB em São Vicente
+                            </li>
+                            <li>Aumenta o Investimento em Exploração permanentemente</li>
+                            <li>Gera alertas históricos imersivos sobre as grandes descobertas do sertão</li>
+                        </ul>
+                    </div>
+                    <div class="bandeiras-contras">
+                        <h4>⚠️ Desvantagens</h4>
+                        <ul>
+                            <li>Custo imediato de <strong>$50 Contos</strong> do Tesouro</li>
+                            <li>Nenhum benefício imediato — investimento de longo prazo</li>
+                            <li>A janela de oportunidade se fecha em <strong>1690</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="bandeiras-aviso">⚠️ Esta é uma ação <strong>única e irreversível</strong> por era. Após
+                    financiadas, as expedições não podem ser canceladas.</p>
+                <div class="opcoes-container">
+                    <button class="btn-opcao-bifurcacao btn-bandeiras-confirmar" id="btn-bandeiras-financiar">
+                        <strong>💰 Financiar Agora — $50 Contos</strong>
+                        <span>Enviar as expedições ao interior imediatamente.</span>
+                    </button>
+                    <button class="btn-opcao-bifurcacao" id="btn-bandeiras-adiar" style="opacity: 0.8;">
+                        <strong>⏳ Deixar para Depois</strong>
+                        <span>Fechar esta janela e decidir mais tarde. O botão continuará disponível no painel.</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMAÇÃO DE REINÍCIO -->
+    <div id="modal-confirmar-reiniciar"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(10px);">
+        <div class="modal-box"
+            style="width: 450px; max-width: 90%; background: var(--panel-bg); border: 2px solid var(--header-color); border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;">
+            <h2 style="color: var(--header-color); margin-top: 0; font-family: inherit;">⚠️ Reiniciar Simulador?</h2>
+            <div style="margin: 20px 0; text-align: left; font-size: 14px; line-height: 1.6; color: var(--text-color);">
+                <p>Você está prestes a reiniciar a simulação atual. Tenha em mente as seguintes consequências:</p>
+                <ul style="padding-left: 20px; margin: 10px 0;">
+                    <li><strong>Perda de Progresso:</strong> Todos os seus investimentos, decisões tomadas e PIB
+                        acumulado nesta sessão serão perdidos de forma definitiva.</li>
+                    <li><strong>Retorno ao Início:</strong> A simulação voltará ao <strong>Ano 1530</strong>, no início
+                        da colonização.</li>
+                    <li>O save automático atual será sobrescrito ao avançar o primeiro turno.</li>
+                </ul>
+                <p style="text-align: center; margin-top: 15px; font-weight: bold; color: #f38ba8;">Deseja realmente
+                    prosseguir?</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-reiniciar-confirmar"
+                    style="flex: 1; padding: 10px; background-color: #f38ba8; color: #11111b; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Confirmar
+                    Reinício</button>
+                <button id="btn-reiniciar-cancelar"
+                    style="flex: 1; padding: 10px; background-color: var(--btn-bg); color: var(--text-color); border: 1px solid var(--panel-border); border-radius: 4px; cursor: pointer;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMAÇÃO DE LIMPEZA DE RANKINGS -->
+    <div id="modal-confirmar-limpar"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(10px);">
+        <div class="modal-box"
+            style="width: 450px; max-width: 90%; background: var(--panel-bg); border: 2px solid var(--header-color); border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;">
+            <h2 style="color: var(--header-color); margin-top: 0; font-family: inherit;">🏆 Limpar Histórico e Recordes?
+            </h2>
+            <div style="margin: 20px 0; text-align: left; font-size: 14px; line-height: 1.6; color: var(--text-color);">
+                <p>Esta ação é irreversível e irá apagar:</p>
+                <ul style="padding-left: 20px; margin: 10px 0;">
+                    <li><strong>Recordes de Eras:</strong> Toda a lista de recordes e conquistas salvas localmente no
+                        navegador.</li>
+                    <li><strong>Save do Jogo:</strong> O progresso salvo da simulação atual. O simulador será resetado
+                        para o início.</li>
+                </ul>
+                <p style="text-align: center; margin-top: 15px; font-weight: bold; color: #f38ba8;">Deseja realmente
+                    limpar todos os dados?</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-limpar-confirmar"
+                    style="flex: 1; padding: 10px; background-color: #f38ba8; color: #11111b; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Limpar
+                    Tudo</button>
+                <button id="btn-limpar-cancelar"
+                    style="flex: 1; padding: 10px; background-color: var(--btn-bg); color: var(--text-color); border: 1px solid var(--panel-border); border-radius: 4px; cursor: pointer;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DO DIÁRIO DE BORDO (Event Log) -->
+    <div id="modal-diario-bordo"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(10px);">
+        <div class="modal-box-diario"
+            style="width: 600px; max-width: 90%; background: var(--bg-color); border: 2px solid var(--header-color); border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 80vh; box-sizing: border-box;">
+            <h2
+                style="color: var(--header-color); margin-top: 0; font-family: var(--header-font-family); text-align: center; border-bottom: 2px dashed var(--panel-border); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span>📜 Diário de Bordo Nacional</span>
+                <span id="btn-fechar-diario" style="cursor: pointer; font-size: 18px; opacity: 0.6;">✕</span>
+            </h2>
+            <div id="diario-bordo-conteudo"
+                style="flex: 1; overflow-y: auto; text-align: left; padding: 15px 5px; font-family: var(--font-family); font-size: 13px; line-height: 1.6; max-height: 50vh;">
+                <!-- Preenchido dinamicamente via JS -->
+            </div>
+            <button id="btn-diario-entendido" style="margin-top: 15px; width: 100%;">Fechar Diário</button>
+        </div>
+    </div>
+
+    <!-- TOOLTIP GLOBAL DO JOGO -->
+    <div id="game-tooltip" class="game-tooltip" role="tooltip" aria-hidden="true"></div>
+
+    <!-- Tipo module para importar os motores matemáticos livremente -->
+    <script type="module" src="./src/view.js?v=6"></script>
+</body>
+
+</html>

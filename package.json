@@ -1,0 +1,9 @@
+{
+  "name": "ucronia-brasilis",
+  "version": "1.0.0",
+  "description": "Simulador de estratégia da história do Brasil",
+  "type": "module",
+  "scripts": {
+    "test:sim": "node scripts/testSimulation.js"
+  }
+}
