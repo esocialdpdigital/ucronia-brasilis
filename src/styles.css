@@ -2082,4 +2082,22 @@ body[data-theme="moderno"] .diario-item-tipo-info {
     transform: translateY(-1px) scale(0.98);
 }
 
+/* =========================================================
+   MODAIS FULLSCREEN
+   ========================================================= */
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20000;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-sizing: border-box;
+}
+
 

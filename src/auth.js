@@ -21,8 +21,16 @@ const defaultFirebaseConfig = {
 
 let db = null;
 let fbAuth = null;
+let authCallback = null;
+
+function notifyAuthChange() {
+    if (authCallback) {
+        authCallback(authState.user);
+    }
+}
 
 export function initAuth(onAuthStateChangedCallback) {
+    authCallback = onAuthStateChangedCallback;
     const config = window.firebaseConfig || defaultFirebaseConfig;
     const isFirebaseAvailable = typeof window.firebase !== 'undefined';
 
@@ -37,21 +45,38 @@ export function initAuth(onAuthStateChangedCallback) {
             }
             db = window.firebase.firestore();
             fbAuth = window.firebase.auth();
-            authState.isOffline = false;
-            console.log("🔥 Firebase inicializado com sucesso. Modo Online ativo.");
+            
+            // Se já tem usuário offline/guest salvo na sessão, mantém o Modo Offline ativo
+            const hasOfflineUser = sessionStorage.getItem('ucronia_user_offline');
+            if (hasOfflineUser) {
+                authState.isOffline = true;
+                authState.user = JSON.parse(hasOfflineUser);
+                console.log("🔌 Inicializando com sessão offline/guest salva.");
+                if (authCallback) {
+                    setTimeout(() => authCallback(authState.user), 100);
+                }
+            } else {
+                authState.isOffline = false;
+                console.log("🔥 Firebase inicializado com sucesso. Modo Online ativo.");
+            }
 
             // Listener de estado de autenticação do Firebase
             fbAuth.onAuthStateChanged(async (user) => {
+                // Se o usuário escolheu ativamente jogar offline/guest, ignore o listener do Firebase
+                if (authState.isOffline && sessionStorage.getItem('ucronia_user_offline')) {
+                    return;
+                }
                 if (user) {
                     authState.user = {
                         uid: user.uid,
                         email: user.email,
                         displayName: user.displayName || user.email.split('@')[0],
                     };
+                    authState.isOffline = false;
                 } else {
                     authState.user = null;
                 }
-                if (onAuthStateChangedCallback) onAuthStateChangedCallback(authState.user);
+                if (authCallback) authCallback(authState.user);
             });
             return;
         } catch (error) {
@@ -71,9 +96,9 @@ export function initAuth(onAuthStateChangedCallback) {
         authState.user = null;
     }
     
-    if (onAuthStateChangedCallback) {
+    if (authCallback) {
         // Dispara assincronamente para dar tempo dos listeners da UI carregarem
-        setTimeout(() => onAuthStateChangedCallback(authState.user), 100);
+        setTimeout(() => authCallback(authState.user), 100);
     }
 }
 
@@ -94,6 +119,7 @@ export async function registerUser(username, email, password) {
         const offlineUser = { uid: 'offline_' + email, displayName: username, email: email };
         authState.user = offlineUser;
         sessionStorage.setItem('ucronia_user_offline', JSON.stringify(offlineUser));
+        notifyAuthChange();
         return offlineUser;
     } else {
         // Registro Online com Firebase
@@ -113,6 +139,7 @@ export async function registerUser(username, email, password) {
             email: user.email,
             displayName: username
         };
+        notifyAuthChange();
         return authState.user;
     }
 }
@@ -133,6 +160,7 @@ export async function loginUser(email, password) {
         const offlineUser = { uid: 'offline_' + email, displayName: user.username, email: email };
         authState.user = offlineUser;
         sessionStorage.setItem('ucronia_user_offline', JSON.stringify(offlineUser));
+        notifyAuthChange();
         return offlineUser;
     } else {
         // Login Online
@@ -143,6 +171,7 @@ export async function loginUser(email, password) {
             email: user.email,
             displayName: user.displayName || user.email.split('@')[0]
         };
+        notifyAuthChange();
         return authState.user;
     }
 }
@@ -155,6 +184,7 @@ export function loginAsGuest() {
     authState.user = guestUser;
     authState.isOffline = true;
     sessionStorage.setItem('ucronia_user_offline', JSON.stringify(guestUser));
+    notifyAuthChange();
     return guestUser;
 }
 
@@ -167,6 +197,7 @@ export async function logoutUser() {
     }
     authState.user = null;
     sessionStorage.removeItem('ucronia_user_offline');
+    notifyAuthChange();
 }
 
 /**
