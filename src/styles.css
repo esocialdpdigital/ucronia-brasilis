@@ -21,6 +21,15 @@ body[data-era="colonial"], body:not([data-era]) {
     --header-font-family: 'Playfair Display', 'Georgia', serif;
     --map-stroke: #5c4033;
     --map-bg: rgba(92, 64, 51, 0.05);
+
+    /* Cores do Mapa Colonial (Aquarela Pergaminho Suave) */
+    --map-fill-pacificado: #b8cba8;
+    --map-fill-tension: #ded2ab;
+    --map-fill-crise: #e5b38d;
+    --map-fill-rebelado: #d08484;
+    --map-fill-rebelado-total: #a04040;
+    --map-fill-invaded: #849ebd;
+    --map-fill-independent: #a78cbd;
 }
 
 /* ERA IMPÉRIO (1822 - 1889) */
@@ -39,6 +48,15 @@ body[data-era="imperio"] {
     --header-font-family: 'Cinzel', 'Times New Roman', serif;
     --map-stroke: #daa520;
     --map-bg: rgba(255, 255, 255, 0.05);
+
+    /* Cores do Mapa Imperial (Esmeralda e Dourado) */
+    --map-fill-pacificado: #2e7d32;
+    --map-fill-tension: #fbc02d;
+    --map-fill-crise: #ef6c00;
+    --map-fill-rebelado: #c62828;
+    --map-fill-rebelado-total: #781d1d;
+    --map-fill-invaded: #1565c0;
+    --map-fill-independent: #6a1b9a;
 }
 
 /* ERA REPÚBLICA (1890 - 1987) */
@@ -57,6 +75,15 @@ body[data-era="republica"] {
     --header-font-family: 'Inter', sans-serif;
     --map-stroke: #f0f4f8;
     --map-bg: rgba(0, 0, 0, 0.2);
+
+    /* Cores do Mapa Republicano */
+    --map-fill-pacificado: #2d6a4f;
+    --map-fill-tension: #d97706;
+    --map-fill-crise: #ea580c;
+    --map-fill-rebelado: #dc2626;
+    --map-fill-rebelado-total: #991b1b;
+    --map-fill-invaded: #2563eb;
+    --map-fill-independent: #7c3aed;
 }
 
 /* ERA CONTEMPORÂNEA (1988 - 2025) */
@@ -75,6 +102,15 @@ body[data-era="contemporanea"] {
     --header-font-family: 'Inter', sans-serif;
     --map-stroke: #4f46e5;
     --map-bg: rgba(13, 14, 21, 0.8);
+
+    /* Cores do Mapa Contemporâneo */
+    --map-fill-pacificado: #059669;
+    --map-fill-tension: #eab308;
+    --map-fill-crise: #f97316;
+    --map-fill-rebelado: #ef4444;
+    --map-fill-rebelado-total: #b91c1c;
+    --map-fill-invaded: #3b82f6;
+    --map-fill-independent: #8b5cf6;
 }
 
 /* ERA FUTURA (2026+) */
@@ -93,6 +129,15 @@ body[data-era="futura"] {
     --header-font-family: 'Inter', monospace;
     --map-stroke: #a3e635;
     --map-bg: #000000;
+
+    /* Cores do Mapa Futuro */
+    --map-fill-pacificado: #2c5e1a;
+    --map-fill-tension: #a3e635;
+    --map-fill-crise: #d97706;
+    --map-fill-rebelado: #ef4444;
+    --map-fill-rebelado-total: #7f1d1d;
+    --map-fill-invaded: #1e3a8a;
+    --map-fill-independent: #581c87;
 }
 
 /* =========================================================
@@ -113,6 +158,15 @@ body[data-theme="moderno"] {
     --header-font-family: 'Inter', sans-serif;
     --map-stroke: #38bdf8;
     --map-bg: rgba(15, 23, 42, 0.85);
+
+    /* Cores Modernas */
+    --map-fill-pacificado: #0f766e;
+    --map-fill-tension: #b45309;
+    --map-fill-crise: #c2410c;
+    --map-fill-rebelado: #b91c1c;
+    --map-fill-rebelado-total: #7f1d1d;
+    --map-fill-invaded: #1d4ed8;
+    --map-fill-independent: #6d28d9;
 }
 
    ESTILOS GLOBAIS E DE LAYOUT
@@ -2098,6 +2152,62 @@ body[data-theme="moderno"] .diario-item-tipo-info {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-sizing: border-box;
+}
+
+/* =========================================================
+   TEXTURIZAÇÃO PROCEDURAL E ANIMAÇÃO DO MAPA
+   ========================================================= */
+
+/* Textura para Era Colonial - Papel de Fibra / Pergaminho */
+body[data-era="colonial"] .col-right {
+    background-image: radial-gradient(circle at center, rgba(253, 250, 242, 0.5) 0%, rgba(196, 179, 140, 0.3) 100%), 
+                      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+    box-shadow: inset 0 0 50px rgba(92, 64, 51, 0.15), var(--panel-shadow);
+    border: 2px solid #7c441b;
+}
+
+/* Textura para Era Império - Veludo de Conselheiro de Estado */
+body[data-era="imperio"] .col-right {
+    background-image: radial-gradient(circle at center, rgba(34, 92, 75, 0.1) 0%, rgba(17, 51, 41, 0.5) 100%), 
+                      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5), var(--panel-shadow);
+    border: 2px solid #daa520;
+}
+
+/* Ajustes no hover e brilho das capitanias do mapa */
+.state-path:hover {
+    filter: brightness(1.1) drop-shadow(0 0 8px var(--map-stroke));
+    transform: scale(1.015);
+}
+
+/* =========================================================
+   MODAL DE INTRODUÇÃO DE ERA
+   ========================================================= */
+#modal-intro-era {
+    animation: fadeInIntro 0.4s ease-out;
+}
+
+#modal-intro-era #modal-intro-inner {
+    animation: scaleInIntro 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#modal-intro-era img {
+    animation: zoomImageSlow 6s infinite alternate ease-in-out;
+}
+
+@keyframes fadeInIntro {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleInIntro {
+    from { transform: scale(0.9) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes zoomImageSlow {
+    from { transform: scale(1.03); }
+    to { transform: scale(1.12); }
 }
 
 

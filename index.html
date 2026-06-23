@@ -605,6 +605,47 @@
         </div>
     </div>
 
+    <!-- MODAL DE INTRODUCAO DE ERA (Imersivo e Narrativo) -->
+    <div id="modal-intro-era"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 15000; backdrop-filter: blur(15px);">
+        <div id="modal-intro-inner"
+            style="width: 650px; max-width: 94vw; max-height: 92vh; overflow-y: auto; background: var(--panel-bg); border: 2px solid var(--header-color); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); text-align: center; display: flex; flex-direction: column;">
+            
+            <!-- Banner de Imagem da Era -->
+            <div id="intro-era-banner-wrapper"
+                style="position: relative; width: 100%; height: 260px; overflow: hidden; border-radius: 14px 14px 0 0; flex-shrink: 0;">
+                <img id="intro-era-img" src="" alt="Imagem da Era"
+                    style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; transform: scale(1.05); transition: transform 6s ease;">
+                <div
+                    style="position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: linear-gradient(to bottom, transparent, var(--panel-bg));">
+                </div>
+                <div id="intro-era-badge"
+                    style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.75); border: 1px solid var(--header-color); border-radius: 20px; padding: 5px 15px; font-size: 12px; font-weight: bold; color: var(--header-color); backdrop-filter: blur(4px); text-transform: uppercase; letter-spacing: 1px;">
+                    Era</div>
+            </div>
+
+            <!-- Conteúdo da Introdução -->
+            <div style="padding: 25px 35px 35px; display: flex; flex-direction: column; gap: 20px;">
+                <div>
+                    <h2 id="intro-era-titulo"
+                        style="color: var(--header-color); margin: 0 0 12px; font-family: var(--header-font-family); font-size: 26px; letter-spacing: 0.5px;">
+                        Título da Era</h2>
+                    <div id="intro-era-texto"
+                        style="font-size: 13.5px; line-height: 1.7; color: var(--text-color); opacity: 0.95; margin: 0; text-align: left; background: rgba(0,0,0,0.15); padding: 18px 22px; border-radius: 10px; border-left: 4px solid var(--header-color); max-height: 250px; overflow-y: auto; box-sizing: border-box;">
+                        Lore da era.
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid var(--panel-border); padding-top: 18px;">
+                    <button id="btn-fechar-intro-era" class="btn-auth-submit"
+                        style="width: 100%; padding: 14px; font-size: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s;">
+                        Governar Território
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DE TRANSICAO DE ERA (Narrativo e Imersivo) -->
     <div id="modal-transicao-era"
         style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(10px);">

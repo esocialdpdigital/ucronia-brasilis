@@ -1129,6 +1129,54 @@ function realizarLimpar() {
     mostrarToast(`<strong style="color: #a6e3a1;">Sucesso:</strong> Histórico e recordes limpos.`);
 }
 
+function mostrarIntroEra(era) {
+    const modalIntro = document.getElementById('modal-intro-era');
+    if (!modalIntro) return;
+
+    const imgIntro = document.getElementById('intro-era-img');
+    const tituloIntro = document.getElementById('intro-era-titulo');
+    const textoIntro = document.getElementById('intro-era-texto');
+    const badgeIntro = document.getElementById('intro-era-badge');
+
+    let imgSrc = "";
+    let titulo = "";
+    let texto = "";
+    let badgeText = "";
+
+    if (era === 'colonial') {
+        imgSrc = "assets/img/intro_colonial.png";
+        titulo = "A Terra de Santa Cruz (1530)";
+        badgeText = "Era Colonial";
+        texto = `Ano de 1530. O vasto território da Terra de Santa Cruz, rico em Pau-Brasil, enfrenta o risco constante de invasões estrangeiras pelas potências europeias. 
+        Para assegurar as possessões ultramarinas, D. João III institui o sistema de Capitanias Hereditárias, dividindo a colônia em 12 faixas de terra.
+        <br><br>
+        Como Donatário e Governador, seu dever é atrair colonos, estabelecer os primeiros engenhos de açúcar, combater corsários franceses, negociar ou confrontar tribos indígenas, e expandir a infraestrutura colonial. As suas decisões econômicas, fiscais e militares decidirão se esta colônia continuará dependente de Lisboa ou trilhará o caminho da independência ucrônica.`;
+    } else if (era === 'imperio') {
+        imgSrc = "assets/img/eventos/independencia.png";
+        titulo = "O Nascimento do Império (1822)";
+        badgeText = "Era Imperial";
+        texto = `Ano de 1822. O grito do Ipiranga ecoa e o Brasil declara sua emancipação de Portugal. O novo Império do Brasil nasce sob a liderança do jovem Imperador D. Pedro I, mas enfrenta imensos desafios de integração nacional e ameaças de fragmentação.
+        <br><br>
+        Composto agora por 20 Províncias unificadas, você assume o papel de Primeiro-Ministro com o Poder Moderador. Governe o país enfrentando as revoltas regenciais, o novo Ciclo do Café, o planejamento das primeiras Ferrovias e a delicada Questão Abolicionista. Conduzirá a pátria à estabilidade sob a Coroa ou ao colapso republicano?`;
+    }
+
+    if (imgIntro) imgIntro.src = imgSrc;
+    if (tituloIntro) tituloIntro.innerText = titulo;
+    if (textoIntro) textoIntro.innerHTML = texto;
+    if (badgeIntro) badgeIntro.innerText = badgeText;
+
+    modalIntro.style.display = 'flex';
+}
+
+const btnFecharIntroEra = document.getElementById('btn-fechar-intro-era');
+if (btnFecharIntroEra) {
+    btnFecharIntroEra.addEventListener('click', () => {
+        const modalIntro = document.getElementById('modal-intro-era');
+        if (modalIntro) modalIntro.style.display = 'none';
+        AudioController.playClick();
+    });
+}
+
 
 // Event Listeners Gerais
 const btnFecharModal = document.getElementById('btn-fechar-modal');
@@ -1139,7 +1187,17 @@ if (btnFecharModal) {
             currentState.globais.config_ui.exibir_popup_conselho = false;
         }
         currentState.globais.alertas_conselho = [];
+        
+        // Esconde o modal imediatamente para feedback instantâneo ao usuário
+        const modalConselho = document.getElementById('modal-conselho');
+        if (modalConselho) {
+            modalConselho.style.display = 'none';
+        }
+        
         updateInterface(currentState);
+        
+        // Persiste o estado com os alertas já devidamente limpos
+        saveGameState(currentState).catch(e => console.error(e));
     });
 }
 
@@ -1368,12 +1426,13 @@ if (btnTransicaoUcronica) {
         
         if (modalTransicao) modalTransicao.style.display = 'none';
         
-        // Recria cards para as 19 províncias
+        // Recria cards para as províncias
         createCards(currentState);
         updateInterface(currentState);
 
-        localStorage.setItem('ucronia_brasilis_save', JSON.stringify(currentState));
+        saveGameState(currentState).catch(e => console.error(e));
         mostrarToast(`<strong style="color: #a6e3a1;">Ucronia ativada!</strong> Bem-vindo ao Brasil Império (Caminho Ucrônico). Seus PIBs e infraestruturas foram herdados!`);
+        mostrarIntroEra('imperio');
     });
 }
 
@@ -1391,6 +1450,16 @@ if (btnTransicaoCanonica) {
 
         // Transiciona
         currentState = transitionToEra(currentState, "imperio", "canonica");
+        
+        if (modalTransicao) modalTransicao.style.display = 'none';
+        
+        // Recria cards para as províncias
+        createCards(currentState);
+        updateInterface(currentState);
+
+        saveGameState(currentState).catch(e => console.error(e));
+        mostrarToast(`<strong style="color: #a6e3a1;">Império Ativado!</strong> Bem-vindo ao Brasil Império (Caminho Canônico). Dados históricos reais carregados.`);
+        mostrarIntroEra('imperio');
     });
 }
 
@@ -1701,6 +1770,7 @@ function initAuthFlow() {
             updateInterface(currentState);
             await saveGameState(currentState);
             mostrarToast(`<strong style="color: #a6e3a1;">Jogo Iniciado:</strong> Simulação carregada em ${currentState.globais.ano_atual}.`);
+            mostrarIntroEra(era);
         });
     });
 
@@ -1803,20 +1873,20 @@ function renderMapD3(state) {
         .attr("d", pathGenerator)
         .style("fill", d => {
             const estado = state.estados.find(e => e.id === d.id);
-            if (!estado) return "#a6e3a1";
+            if (!estado) return "var(--map-fill-pacificado, #a6e3a1)";
             // Fase 3.0: Cores de inacessibilidade territorial
             const statusTerr = estado.status_territorio || "controlado";
-            if (statusTerr === "invadido") return "#1a3a6b"; // azul-escuro holandês
-            if (statusTerr === "independente") return "#6b3d8c"; // roxo
-            if (estado.defesa.indice_revolta >= 100) return "#7b0000"; // vermelho intenso (rebelado total)
+            if (statusTerr === "invadido") return "var(--map-fill-invaded, #1a3a6b)";
+            if (statusTerr === "independente") return "var(--map-fill-independent, #6b3d8c)";
+            if (estado.defesa.indice_revolta >= 100) return "var(--map-fill-rebelado-total, #7b0000)";
             if (estado.defesa.indice_revolta >= 70) {
-                return "#f38ba8"; // Rebelado
+                return "var(--map-fill-rebelado, #f38ba8)";
             } else if (estado.penalidade_ativa) {
-                return "#fab387"; // Crise
+                return "var(--map-fill-crise, #fab387)";
             } else if (estado.defesa.indice_revolta < 30) {
-                return "#a6e3a1"; // Pacificado
+                return "var(--map-fill-pacificado, #a6e3a1)";
             } else {
-                return "#f9e2af"; // Tensão
+                return "var(--map-fill-tension, #f9e2af)";
             }
         })
         .style("opacity", d => {
