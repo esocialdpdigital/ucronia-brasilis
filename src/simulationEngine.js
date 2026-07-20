@@ -7,6 +7,7 @@
  */
 
 import { historiaCanonica } from '../data/historia_canonica.js';
+import { evaluateTimeline } from './timelineEngine.js';
 
 export const LORE_NIVEIS = {
     modal_portuario: {
@@ -132,7 +133,7 @@ export function advanceYear(currentState) {
         return currentState;
     }
 
-    const newState = JSON.parse(JSON.stringify(currentState));
+    let newState = JSON.parse(JSON.stringify(currentState));
 
     // 1. Avança o tempo
     newState.globais.ano_atual += 1;
@@ -460,6 +461,9 @@ export function advanceYear(currentState) {
     } else {
         newState.globais.divergencia_atual = 0.0;
     }
+
+    // Processa o Cérebro da Linha do Tempo (Poda, Shifting, Injeção)
+    newState = evaluateTimeline(newState);
 
     // Captura snapshot para o histórico e calcula a divergência
     if (!newState.globais.historico_jogador) {

@@ -40,8 +40,10 @@ export function getInitialGameState(sede = "bahia", perfil = "comerciante") {
             divergencia_atual: 0.0,         // Índice de divergência atual (0 a 100)
             eventLog: [],                   // Diário de Bordo para auditar as jogadas
             settings: {
-                audioEnabled: true
+                audioEnabled: true,
+                mostrar_rumores: true       // Controla exibição do Painel de Previsões/Rumores
             },
+            eventos_futuros: [],            // Fila dinâmica de eventos futuros gerenciada pelo Timeline Engine
             capitania_sede: sede,           // Salva a capitania sede escolhida
             perfil_governante: perfil       // Salva o perfil do governante escolhido
         },
@@ -118,7 +120,8 @@ export function transitionToEra(previousState, eraDestino, tipoTransicao) {
                 decisoes_historicas: tipoTransicao === "ucronica" ? JSON.parse(JSON.stringify(previousState.globais.decisoes_historicas || [])) : [],
                 divergencia_atual: tipoTransicao === "ucronica" ? (previousState.globais.divergencia_atual || 0.0) : 0.0,
                 eventLog: JSON.parse(JSON.stringify(previousState.globais.eventLog || [])),
-                settings: JSON.parse(JSON.stringify(previousState.globais.settings || { audioEnabled: true }))
+                settings: JSON.parse(JSON.stringify(previousState.globais.settings || { audioEnabled: true, mostrar_rumores: true })),
+                eventos_futuros: []
             },
             estados: []
         };

@@ -1,6 +1,7 @@
 import { getInitialGameState, transitionToEra } from './gameState.js';
 import { advanceYear, executeUpgrade, financiarBandeiras, aumentarDefesa, solicitarSocorroRegio, solicitarEmprestimoLondres, capturarSnapshot, calcularDivergencia, atacarTerritorio, negociarTerritorio, getUpgradeCost, getLevelLore, decretarImpostosExtraordinarios, dissolverAssembleiaGeral } from './simulationEngine.js';
 import { checkEvents, resolverBifurcacao } from './eventManager.js';
+import { getUpcomingEvents } from './timelineEngine.js';
 import { eventosColoniais } from '../data/eventos_colonial.js';
 import { capitaniasGeoJSON } from '../data/mapas/capitanias_1534_geojson.js';
 import { estados1822GeoJSON } from '../data/mapas/estados_1822_geojson.js';
@@ -852,6 +853,9 @@ function updateInterface(state) {
         }
     }
 
+    // Atualiza o Painel de Rumores & Previsões (Timeline Engine)
+    updatePainelRumores(state);
+
     // Controla o painel do Conselho das Províncias (apenas na Era República)
     const painelConselhoEl = document.getElementById('painel-conselho-provincias');
     if (painelConselhoEl) {
@@ -1603,6 +1607,71 @@ if (btnTransicaoRepublica) {
 
 // Listeners do Poder Moderador
 const btnDecretarImpostos = document.getElementById('btn-decretar-impostos');
+
+// Listener de Configurações ⚙️ (Timeline Engine & Áudio)
+const btnOpenSettings = document.getElementById('btn-open-settings');
+const modalSettings = document.getElementById('modal-settings');
+const btnFecharSettings = document.getElementById('btn-fechar-settings');
+const chkToggleRumores = document.getElementById('chk-toggle-rumores');
+const chkToggleAudio = document.getElementById('chk-toggle-audio');
+
+if (btnOpenSettings && modalSettings) {
+    btnOpenSettings.addEventListener('click', () => {
+        const settings = currentState.globais.settings || { audioEnabled: true, mostrar_rumores: true };
+        if (chkToggleRumores) chkToggleRumores.checked = settings.mostrar_rumores !== false;
+        if (chkToggleAudio) chkToggleAudio.checked = settings.audioEnabled !== false;
+        modalSettings.style.display = 'flex';
+    });
+}
+
+if (btnFecharSettings && modalSettings) {
+    btnFecharSettings.addEventListener('click', () => {
+        currentState.globais.settings = currentState.globais.settings || {};
+        if (chkToggleRumores) currentState.globais.settings.mostrar_rumores = chkToggleRumores.checked;
+        if (chkToggleAudio) {
+            currentState.globais.settings.audioEnabled = chkToggleAudio.checked;
+        }
+        modalSettings.style.display = 'none';
+        updateInterface(currentState);
+        saveGameState(currentState).catch(e => console.error(e));
+        mostrarToast(`⚙️ <strong>Configurações salvas!</strong>`);
+    });
+}
+
+/**
+ * Atualiza visualmente o Painel de Rumores & Previsões (Timeline Engine).
+ */
+function updatePainelRumores(state) {
+    const painelEl = document.getElementById('painel-rumores');
+    if (!painelEl) return;
+
+    const mostrarRumores = state.globais.settings ? state.globais.settings.mostrar_rumores : true;
+
+    if (!mostrarRumores) {
+        painelEl.style.display = 'none';
+        return;
+    }
+
+    painelEl.style.display = 'block';
+    const listaEl = document.getElementById('rumores-lista');
+    if (!listaEl) return;
+
+    const rumores = getUpcomingEvents(state, 3);
+    if (rumores.length === 0) {
+        listaEl.innerHTML = `<div style="opacity:0.6; font-style:italic;">Nenhum rumor geopolítico detectado para os próximos anos.</div>`;
+        return;
+    }
+
+    listaEl.innerHTML = rumores.map(r => `
+        <div class="rumor-card ${r.is_ucronico ? 'ucronico' : ''}">
+            <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                <span>${r.is_ucronico ? '⚡ ' : '📜 '}${r.nome}</span>
+                <span style="opacity:0.8; font-size:10px;">${r.estimativa}</span>
+            </div>
+            <div style="opacity:0.75; font-size:10px; margin-top:3px;">${r.descricaoPista}</div>
+        </div>
+    `).join('');
+}
 if (btnDecretarImpostos) {
     btnDecretarImpostos.addEventListener('click', () => {
         if (confirm("Deseja realmente Decretar Impostos Extraordinários?\n\nIsso trará +150 Contos imediatos ao Tesouro, mas aumentará o índice de revolta em todas as províncias em +10%.")) {

@@ -19,8 +19,9 @@ export const exampleEventsList = []/**
  * @returns {boolean} True se a condição for satisfeita
  */
 function evaluateCondition(state, evento) {
-    // Se o evento tem ano fixo, obrigatoriamente tem que ser o ano atual
-    if (evento.ano_fixo !== undefined && state.globais.ano_atual !== evento.ano_fixo) {
+    // Se o evento possui ano_target definido pelo Timeline Engine ou ano_fixo, verifica se bate com o ano atual
+    const anoAlvo = evento.ano_target !== undefined ? evento.ano_target : evento.ano_fixo;
+    if (anoAlvo !== undefined && state.globais.ano_atual !== anoAlvo) {
         return false;
     }
 
@@ -199,7 +200,12 @@ export function checkEvents(currentState, eventsList = null) {
     const eraAtual = newState.globais.era_atual;
     let list = eventsList;
     if (!list) {
-        list = eraAtual === "imperio" ? eventosImperiais : eventosColoniais;
+        // Se houver uma fila dinâmica de futuros eventos processada pelo Timeline Engine, utiliza ela
+        if (newState.globais.eventos_futuros && newState.globais.eventos_futuros.length > 0) {
+            list = newState.globais.eventos_futuros;
+        } else {
+            list = eraAtual === "imperio" ? eventosImperiais : eventosColoniais;
+        }
     }
     
     // Filtra apenas eventos que combinam com a era atual
