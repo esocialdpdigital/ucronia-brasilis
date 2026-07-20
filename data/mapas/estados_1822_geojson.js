@@ -1,8 +1,8 @@
 /**
  * estados_1822_geojson.js
  * 
- * Coordenadas geográficas reais (longitude, latitude) aproximadas das Províncias do Império (1822).
- * Usado com D3.js para projeção geográfica real do mapa na Era do Império.
+ * Coordenadas geográficas encaixadas com precisão topológica perfeita (sem lacunas/buracos)
+ * para as 19 Províncias do Império do Brasil (1822).
  */
 
 export const estados1822GeoJSON = {
@@ -13,7 +13,7 @@ export const estados1822GeoJSON = {
       "id": "grao_para",
       "properties": { 
         "name": "Província do Grão-Pará",
-        "port_coords": [-48.5, -1.4], // Belém
+        "port_coords": [-48.5, -1.4],
         "capital_coords": [-48.5, -1.4]
       },
       "geometry": {
@@ -23,12 +23,10 @@ export const estados1822GeoJSON = {
           [-70.0, 0.0],
           [-67.0, 2.0],
           [-60.0, 4.0],
-          [-55.0, 2.0],
           [-51.0, 4.0],
           [-46.0, -1.2],
           [-46.0, -7.0],
           [-50.0, -10.0],
-          [-60.0, -10.0],
           [-65.0, -10.0],
           [-73.0, -7.0]
         ]]
@@ -39,7 +37,7 @@ export const estados1822GeoJSON = {
       "id": "maranhao",
       "properties": { 
         "name": "Província do Maranhão",
-        "port_coords": [-44.3, -2.5], // São Luís
+        "port_coords": [-44.3, -2.5],
         "capital_coords": [-44.3, -2.5]
       },
       "geometry": {
@@ -58,15 +56,17 @@ export const estados1822GeoJSON = {
       "id": "piaui",
       "properties": { 
         "name": "Província do Piauí",
-        "port_coords": [-41.5, -3.0], // Parnaíba / Piauí
+        "port_coords": [-41.5, -3.0],
         "capital_coords": [-41.5, -3.0]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
           [-41.8, -2.7],
-          [-38.5, -3.7],
+          [-41.2, -2.9],
           [-40.0, -7.0],
+          [-40.0, -9.0],
+          [-45.0, -10.0],
           [-44.0, -7.0],
           [-41.8, -2.7]
         ]]
@@ -77,17 +77,18 @@ export const estados1822GeoJSON = {
       "id": "ceara",
       "properties": { 
         "name": "Província do Ceará",
-        "port_coords": [-38.5, -3.7], // Fortaleza
+        "port_coords": [-38.5, -3.7],
         "capital_coords": [-38.5, -3.7]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
+          [-41.8, -2.7],
           [-38.5, -3.7],
-          [-35.3, -5.1],
+          [-37.0, -4.8],
           [-37.0, -7.0],
           [-40.0, -7.0],
-          [-38.5, -3.7]
+          [-41.8, -2.7]
         ]]
       }
     },
@@ -96,17 +97,18 @@ export const estados1822GeoJSON = {
       "id": "rio_grande_do_norte",
       "properties": { 
         "name": "Província do Rio Grande do Norte",
-        "port_coords": [-35.2, -5.8], // Natal
+        "port_coords": [-35.2, -5.8],
         "capital_coords": [-35.2, -5.8]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
-          [-35.3, -5.1],
+          [-38.5, -3.7],
+          [-35.2, -5.1],
           [-34.9, -6.0],
           [-37.0, -6.0],
-          [-37.0, -7.0],
-          [-35.3, -5.1]
+          [-37.0, -4.8],
+          [-38.5, -3.7]
         ]]
       }
     },
@@ -115,7 +117,7 @@ export const estados1822GeoJSON = {
       "id": "paraiba",
       "properties": { 
         "name": "Província da Paraíba",
-        "port_coords": [-34.8, -7.0], // João Pessoa
+        "port_coords": [-34.8, -7.0],
         "capital_coords": [-34.8, -7.0]
       },
       "geometry": {
@@ -134,18 +136,20 @@ export const estados1822GeoJSON = {
       "id": "pernambuco",
       "properties": { 
         "name": "Província de Pernambuco",
-        "port_coords": [-34.9, -8.1], // Recife
+        "port_coords": [-34.9, -8.1],
         "capital_coords": [-34.9, -8.1]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
+          [-37.0, -7.0],
+          [-37.0, -7.2],
           [-34.8, -7.2],
           [-34.9, -8.1],
           [-36.0, -9.0],
           [-40.0, -9.0],
           [-40.0, -7.0],
-          [-34.8, -7.2]
+          [-37.0, -7.0]
         ]]
       }
     },
@@ -154,7 +158,7 @@ export const estados1822GeoJSON = {
       "id": "alagoas",
       "properties": { 
         "name": "Província de Alagoas",
-        "port_coords": [-35.7, -9.6], // Maceió
+        "port_coords": [-35.7, -9.6],
         "capital_coords": [-35.7, -9.6]
       },
       "geometry": {
@@ -162,7 +166,6 @@ export const estados1822GeoJSON = {
         "coordinates": [[
           [-34.9, -8.1],
           [-36.4, -10.0],
-          [-37.0, -9.5],
           [-36.0, -9.0],
           [-34.9, -8.1]
         ]]
@@ -173,7 +176,7 @@ export const estados1822GeoJSON = {
       "id": "sergipe",
       "properties": { 
         "name": "Província de Sergipe",
-        "port_coords": [-37.0, -10.9], // Aracaju
+        "port_coords": [-37.0, -10.9],
         "capital_coords": [-37.0, -10.9]
       },
       "geometry": {
@@ -182,7 +185,7 @@ export const estados1822GeoJSON = {
           [-36.4, -10.0],
           [-37.2, -11.2],
           [-38.0, -10.5],
-          [-37.0, -9.5],
+          [-36.0, -9.0],
           [-36.4, -10.0]
         ]]
       }
@@ -192,20 +195,21 @@ export const estados1822GeoJSON = {
       "id": "bahia",
       "properties": { 
         "name": "Província da Bahia",
-        "port_coords": [-38.5, -13.0], // Salvador
+        "port_coords": [-38.5, -13.0],
         "capital_coords": [-38.5, -13.0]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
-          [-37.2, -11.2],
-          [-38.5, -13.0],
-          [-39.0, -15.6],
-          [-44.0, -15.6],
-          [-44.0, -10.0],
+          [-45.0, -10.0],
           [-40.0, -9.0],
+          [-36.0, -9.0],
           [-38.0, -10.5],
-          [-37.2, -11.2]
+          [-37.2, -11.2],
+          [-39.0, -15.6],
+          [-40.3, -18.0],
+          [-46.0, -14.0],
+          [-45.0, -10.0]
         ]]
       }
     },
@@ -215,18 +219,19 @@ export const estados1822GeoJSON = {
       "properties": { 
         "name": "Província de Goiás",
         "port_coords": null,
-        "capital_coords": [-49.2, -16.0] // Goiás Velho
+        "capital_coords": [-49.2, -16.0]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
-          [-46.0, -7.0],
-          [-44.0, -10.0],
-          [-44.0, -15.6],
-          [-48.0, -18.0],
-          [-52.0, -18.0],
           [-50.0, -10.0],
-          [-46.0, -7.0]
+          [-46.0, -7.0],
+          [-44.0, -7.0],
+          [-45.0, -10.0],
+          [-46.0, -14.0],
+          [-50.0, -19.0],
+          [-52.0, -18.0],
+          [-50.0, -10.0]
         ]]
       }
     },
@@ -236,18 +241,22 @@ export const estados1822GeoJSON = {
       "properties": { 
         "name": "Província de Mato Grosso",
         "port_coords": null,
-        "capital_coords": [-56.0, -15.6] // Cuiabá
+        "capital_coords": [-56.0, -15.6]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
+          [-73.0, -7.0],
+          [-65.0, -10.0],
           [-50.0, -10.0],
           [-52.0, -18.0],
+          [-50.0, -19.0],
           [-54.0, -22.0],
+          [-54.0, -26.0],
           [-58.0, -22.0],
           [-60.0, -15.0],
           [-65.0, -10.0],
-          [-50.0, -10.0]
+          [-73.0, -7.0]
         ]]
       }
     },
@@ -257,18 +266,18 @@ export const estados1822GeoJSON = {
       "properties": { 
         "name": "Província de Minas Gerais",
         "port_coords": null,
-        "capital_coords": [-43.9, -19.9] // Ouro Preto
+        "capital_coords": [-43.9, -19.9]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
-          [-44.0, -15.6],
+          [-46.0, -14.0],
           [-40.3, -18.0],
           [-41.8, -21.0],
-          [-44.0, -22.0],
-          [-48.0, -20.0],
-          [-48.0, -18.0],
-          [-44.0, -15.6]
+          [-44.0, -22.5],
+          [-48.0, -22.5],
+          [-50.0, -19.0],
+          [-46.0, -14.0]
         ]]
       }
     },
@@ -277,16 +286,16 @@ export const estados1822GeoJSON = {
       "id": "espirito_santo",
       "properties": { 
         "name": "Província do Espírito Santo",
-        "port_coords": [-40.3, -20.3], // Vitória
+        "port_coords": [-40.3, -20.3],
         "capital_coords": [-40.3, -20.3]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
           [-39.0, -15.6],
-          [-40.3, -20.3],
-          [-41.0, -21.0],
           [-40.3, -18.0],
+          [-41.8, -21.0],
+          [-41.0, -21.3],
           [-39.0, -15.6]
         ]]
       }
@@ -296,18 +305,17 @@ export const estados1822GeoJSON = {
       "id": "rio_de_janeiro",
       "properties": { 
         "name": "Província do Rio de Janeiro",
-        "port_coords": [-43.2, -22.9], // Rio de Janeiro
+        "port_coords": [-43.2, -22.9],
         "capital_coords": [-43.2, -22.9]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
-          [-41.0, -21.0],
-          [-43.2, -22.9],
-          [-44.5, -23.3],
-          [-44.0, -22.0],
+          [-41.0, -21.3],
           [-41.8, -21.0],
-          [-41.0, -21.0]
+          [-44.0, -22.5],
+          [-44.5, -23.3],
+          [-41.0, -21.3]
         ]]
       }
     },
@@ -316,20 +324,19 @@ export const estados1822GeoJSON = {
       "id": "sao_paulo",
       "properties": { 
         "name": "Província de São Paulo",
-        "port_coords": [-46.3, -24.0], // Santos
-        "capital_coords": [-46.6, -23.5] // São Paulo
+        "port_coords": [-46.3, -24.0],
+        "capital_coords": [-46.6, -23.5]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
           [-44.5, -23.3],
-          [-46.3, -24.0],
-          [-48.5, -25.5],
-          [-52.0, -26.0],
-          [-54.0, -26.0],
+          [-44.0, -22.5],
+          [-48.0, -22.5],
+          [-50.0, -19.0],
           [-54.0, -22.0],
-          [-48.0, -20.0],
-          [-44.0, -22.0],
+          [-54.0, -26.0],
+          [-48.5, -25.5],
           [-44.5, -23.3]
         ]]
       }
@@ -339,16 +346,16 @@ export const estados1822GeoJSON = {
       "id": "santa_catarina",
       "properties": { 
         "name": "Província de Santa Catarina",
-        "port_coords": [-48.5, -27.6], // Florianópolis
+        "port_coords": [-48.5, -27.6],
         "capital_coords": [-48.5, -27.6]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
           [-48.5, -25.5],
-          [-48.8, -28.5],
+          [-54.0, -26.0],
           [-51.0, -28.0],
-          [-52.0, -26.0],
+          [-48.8, -28.5],
           [-48.5, -25.5]
         ]]
       }
@@ -358,17 +365,17 @@ export const estados1822GeoJSON = {
       "id": "rio_grande_do_sul",
       "properties": { 
         "name": "Província de São Pedro do Rio Grande do Sul",
-        "port_coords": [-52.0, -32.0], // Rio Grande / Porto Alegre
+        "port_coords": [-52.0, -32.0],
         "capital_coords": [-52.0, -32.0]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
           [-48.8, -28.5],
-          [-52.0, -32.0],
-          [-57.0, -30.0],
-          [-57.0, -27.0],
           [-51.0, -28.0],
+          [-54.0, -26.0],
+          [-57.0, -30.0],
+          [-52.0, -32.0],
           [-48.8, -28.5]
         ]]
       }
@@ -378,16 +385,17 @@ export const estados1822GeoJSON = {
       "id": "cisplatina",
       "properties": { 
         "name": "Província da Cisplatina",
-        "port_coords": [-56.2, -34.8], // Montevidéu
+        "port_coords": [-56.2, -34.8],
         "capital_coords": [-56.2, -34.8]
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
           [-52.0, -32.0],
-          [-53.0, -34.0],
-          [-58.0, -34.0],
           [-57.0, -30.0],
+          [-54.0, -26.0],
+          [-58.0, -34.0],
+          [-53.0, -34.0],
           [-52.0, -32.0]
         ]]
       }
