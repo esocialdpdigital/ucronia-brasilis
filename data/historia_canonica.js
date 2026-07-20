@@ -979,6 +979,10 @@ export const historiaCanonica = {
     }
 ],
         decisoes_canonicas: {
+            "constituicao_1824": "outorgar_constituicao",
+            "confederacao_equador_1824": "esmagar_confederacao",
+            "guerra_cisplatina_1825": "reconhecer_uruguai",
+            "abdicacao_pedro_i_1831": "abdicar_pedro_ii",
             "cabanagem_1835": "esmagar_cabanagem",
             "farroupilha_1835": "combate_militar_farroupilha",
             "sabinada_1837": "cercar_salvador",

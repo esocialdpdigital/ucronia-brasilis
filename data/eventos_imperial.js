@@ -7,6 +7,127 @@
 
 export const eventosImperiais = [
   {
+    id: "constituicao_1824",
+    nome: "A Assembleia Constituinte e a Constituição de 1824",
+    tipo: "bifurcacao",
+    ano_fixo: 1824,
+    imagem: "assets/img/eventos/independencia.png",
+    descricao: "Em meio a intensos debates na Assembleia Constituinte, Dom Pedro I entra em choque com a bancada liberal sobre a limitação dos poderes monárquicos. Cabe decidir a estrutura política do recém-nascido Império do Brasil.",
+    opcoes: [
+      {
+        id: "outorgar_constituicao",
+        texto: "👑 Outorgar a Constituição de 1824 (Poder Moderador)",
+        descricao: "Dissolver a Assembleia Constituinte e impor a Constituição outorgada, consagrando o Poder Moderador Supremo do Imperador. Centraliza a autoridade no Rio de Janeiro, mas eleva a revolta nas províncias liberais em +15%.",
+        efeitos: {
+          tesouro_delta: 50,
+          revolta_delta_global: 15,
+          revolta_delta: { pernambuco: 20, bahia: 15, rio_grande_do_sul: 15 }
+        }
+      },
+      {
+        id: "aceitar_constituinte_liberal",
+        texto: "📜 Aceitar o Projeto Liberal Constituinte (Monarquia Parlamentar)",
+        descricao: "Aprovar a 'Constituição da Mandioca' e submeter a autoridade do Imperador ao Parlamento. Suprime o Poder Moderador, reduz a revolta global (-10%), mas gera descontentamento entre a elite mercantil portuguesa do Rio de Janeiro.",
+        efeitos: {
+          tesouro_delta: -30,
+          revolta_delta_global: -10,
+          penalidade_anual_estado: { estadoId: "rio_de_janeiro", tipo: "arrecadacao_penalidade", valor: 0.90, duracao_anos: 4 }
+        }
+      }
+    ]
+  },
+  {
+    id: "confederacao_equador_1824",
+    nome: "A Confederação do Equador",
+    tipo: "bifurcacao",
+    ano_fixo: 1824,
+    condicao: {
+      algum_estado: { estado_especifico: "pernambuco", revolta_minimo: 10 }
+    },
+    imagem: "assets/img/eventos/revolucao_pernambucana.png",
+    descricao: "Inconformados com o centralismo do Rio de Janeiro e o absolutismo da Constituição outorgada, patriotas pernambucanos liderados por Frei Caneca proclamam a República da Confederação do Equador, atraindo Ceará, Paraíba e Rio Grande do Norte.",
+    opcoes: [
+      {
+        id: "esmagar_confederacao",
+        texto: "⚔️ Contratar a Esquadra de Cochrane (Repressão Militar)",
+        descricao: "Financiar a frota mercenária britânica (-180 Contos) para bombardear o Recife e executar a liderança rebelde. Zera a revolta em Pernambuco e Ceará, mas deixa sequelas na economia nordestina.",
+        efeitos: {
+          tesouro_delta: -180,
+          revolta_delta: { pernambuco: -40, ceara: -30 },
+          penalidade_anual_estado: { estadoId: "pernambuco", tipo: "pib_penalidade", valor: 0.80, duracao_anos: 3 }
+        }
+      },
+      {
+        id: "pacto_federalista_nordeste",
+        texto: "🤝 Pacto de Autonomia Nordestina (Federalismo)",
+        descricao: "Conceder ampla autonomia tributária e legislativa ao Nordeste para evitar a guerra civil. Custa -50 Contos de caixa e reduz o repasse federal de Pernambuco em 20%, mas pacifica pacificamente a região.",
+        efeitos: {
+          tesouro_delta: -50,
+          revolta_delta: { pernambuco: -20, ceara: -20 },
+          aliquota_delta: { pernambuco: -0.10, ceara: -0.10 }
+        }
+      }
+    ]
+  },
+  {
+    id: "guerra_cisplatina_1825",
+    nome: "Guerra da Cisplatina",
+    tipo: "bifurcacao",
+    ano_fixo: 1825,
+    imagem: "assets/img/eventos/invasao_holandesa.png",
+    descricao: "Os 'Trinta e Três Orientais' de Juan Antonio Lavalleja declaram a separação da Província Cisplatina do Império do Brasil para integrar as Províncias Unidas do Rio da Prata (Argentina). O bloqueio naval e os combates terrestres drenam a economia.",
+    opcoes: [
+      {
+        id: "reconhecer_uruguai",
+        texto: "📜 Convenção Preliminar de Paz (Independência do Uruguai)",
+        descricao: "Aceitar a mediação britânica (-80 Contos em custas diplomáticas) e reconhecer a criação da República Oriental do Uruguai como estado tampão neutralizado. Evita a bancarrota do Tesouro Imperial.",
+        efeitos: {
+          tesouro_delta: -80,
+          revolta_delta_global: 5
+        }
+      },
+      {
+        id: "guerra_total_cisplatina",
+        texto: "⚔️ Guerra Total e Anexação Definitiva da Cisplatina",
+        descricao: "Mobilizar frotas e regimentos de elite para sufocar a resistência no Prata (-280 Contos). Drena o Tesouro e força a emissão sem lastro (falência do Banco do Brasil em 1829), mas **mantém a Cisplatina no território nacional**!",
+        efeitos: {
+          tesouro_delta: -280,
+          revolta_delta_global: 15,
+          set_status_territorio: { estadoId: "rio_grande_do_sul", status: "controlado" }
+        }
+      }
+    ]
+  },
+  {
+    id: "abdicacao_pedro_i_1831",
+    nome: "Noite das Garrafadas e Abdicação de Dom Pedro I",
+    tipo: "bifurcacao",
+    ano_fixo: 1831,
+    imagem: "assets/img/eventos/independencia.png",
+    descricao: "Conflitos sangrentos nas ruas da capital entre a facção brasileira e os comerciantes portugueses (Noite das Garrafadas) culminam em uma revolta militar no Campo de Santana. O povo e a tropa exigem a renúncia de Dom Pedro I.",
+    opcoes: [
+      {
+        id: "abdicar_pedro_ii",
+        texto: "👑 Abdicar em Favor de Dom Pedro II (Início da Regência)",
+        descricao: "Dom Pedro I renuncia ao trono e parte para a Europa, deixando seu filho de 5 anos sob a tutoria da Regência Trina. Acalma a revolta popular (-15% Revolta Global) e estabiliza a Monarquia.",
+        efeitos: {
+          tesouro_delta: 0,
+          revolta_delta_global: -15
+        }
+      },
+      {
+        id: "resistencia_absolutista",
+        texto: "⚔️ Declarar Estado de Sítio e Tentar Ditadura Monárquica",
+        descricao: "Recusar a renúncia e governar pela força das armas. Dispara uma Guerra Civil dinástica: o Rio de Janeiro e a Bahia entram em rebelião imediata (+35% Revolta Global).",
+        efeitos: {
+          tesouro_delta: -100,
+          revolta_delta_global: 35,
+          revolta_delta: { bahia: 30, rio_de_janeiro: 40 }
+        }
+      }
+    ]
+  },
+  {
     id: "cabanagem_1835",
     nome: "A Cabanagem no Grão-Pará",
     tipo: "bifurcacao",
