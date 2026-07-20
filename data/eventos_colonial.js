@@ -195,6 +195,36 @@ export const eventosColoniais = [
     }
   },
   {
+    id: "franca_equinocial_1612",
+    nome: "A França Equinocial e a Invasão do Maranhão",
+    tipo: "bifurcacao",
+    ano_fixo: 1612,
+    imagem: "assets/img/eventos/franca_antartica.png",
+    descricao: "Colonizadores franceses liderados por Daniel de La Touche fundam a colônia da França Equinocial no norte do Brasil e erguem o Forte de São Luís (Maranhão). A Coroa deve responder à ocupação francesa de terras portuguesas.",
+    opcoes: [
+      {
+        id: "expedicao_maranhao",
+        texto: "Enviar Expedição Militar de Reconquista",
+        descricao: "Organizar uma frota comandada por Jerônimo de Albuquerque para expulsar os franceses. Custo de 120 Contos do Tesouro. Reduz a revolta no Maranhão e Ceará em 20%, e concede +2 de milícia local no Maranhão.",
+        efeitos: {
+          tesouro_delta: -120,
+          revolta_delta: { maranhao: -20, ceara: -20 },
+          milicia_delta: { maranhao: 2 }
+        }
+      },
+      {
+        id: "tolerar_franceses",
+        texto: "Ignorar Ocupação Temporariamente (Foco no Açúcar)",
+        descricao: "Evitar gastos com expedições militares e tolerar a presença francesa. Sem custos imediatos, mas o contrabando e a perda de controle sobre as rotas do norte drenam 20 Contos de comércio por ano nos próximos 5 anos, e a revolta no Maranhão sobe em 20%.",
+        efeitos: {
+          tesouro_delta: 0,
+          revolta_delta: { maranhao: 20 },
+          penalidade_anual_global: { id: "contrabando_norte", nome: "Contrabando na França Equinocial", tipo: "tesouro", valor: -20, duracao_anos: 5 }
+        }
+      }
+    ]
+  },
+  {
     id: "invasao_salvador_1624",
     nome: "Invasão Holandesa de Salvador",
     tipo: "bifurcacao",
@@ -367,6 +397,62 @@ export const eventosColoniais = [
     ]
   },
   {
+    id: "tratado_methuen_1703",
+    nome: "O Tratado de Methuen (Panos e Vinhos)",
+    tipo: "bifurcacao",
+    ano_fixo: 1703,
+    imagem: "assets/img/eventos/uniao_iberica.png",
+    descricao: "Portugal e Inglaterra assinam o Tratado de Methuen, facilitando a entrada de vinhos portugueses na Inglaterra em troca de tecidos ingleses sem tarifas. Essa dependência ameaça inviabilizar manufaturas no Brasil e drena o ouro da colônia.",
+    opcoes: [
+      {
+        id: "aceitar_tratado",
+        texto: "Aceitar o Tratado de Methuen (Histórico)",
+        descricao: "Priorizar as diretrizes de Lisboa. As manufaturas brasileiras são desencorajadas. O Tesouro sofre um dreno anual de -20 Contos por 10 anos devido à saída de ouro, mas o consumo da elite é atendido, reduzindo a revolta global em 5%.",
+        efeitos: {
+          revolta_delta_global: -5,
+          penalidade_anual_global: { id: "dreno_methuen", nome: "Dreno do Tratado de Methuen", tipo: "tesouro", valor: -20, duracao_anos: 10 }
+        }
+      },
+      {
+        id: "estimular_oficinas",
+        texto: "Fomentar Manufaturas de Tecidos Locais (Ucrônico)",
+        descricao: "Estimular tecelagens rudimentares na colônia para reter o ouro. Aumenta a revolta global em 10% devido à irritação da metrópole e pressão sobre as elites comerciais ligadas a Portugal. Mas o PIB de São Vicente, Bahia e Pernambuco aumenta em 15%.",
+        efeitos: {
+          revolta_delta_global: 10,
+          pib_multiplicador: { sao_vicente: 1.15, bahia: 1.15, pernambuco: 1.15 }
+        }
+      }
+    ]
+  },
+  {
+    id: "tratado_madrid_1750",
+    nome: "O Tratado de Madrid e a Expansão de Fronteiras",
+    tipo: "bifurcacao",
+    ano_fixo: 1750,
+    imagem: "assets/img/eventos/ciclo_ouro_inconfidencia.png",
+    descricao: "Sob a mediação do Papa, as coroas de Espanha e Portugal assinam o Tratado de Madrid. Com base no Uti possidetis (quem possui de fato tem direito), as expedições dos bandeirantes e jesuítas garantem um novo mapa para o Brasil colonial. Precisamos fortificar as novas fronteiras ou focar no litoral.",
+    opcoes: [
+      {
+        id: "fortificar_fronteiras",
+        texto: "Financiar Fortificações nas Fronteiras de Madrid",
+        descricao: "Investir pesadamente na defesa do interior e do sul (-150 Contos). Isso consolida nosso domínio territorial: adiciona +2 de Defesa (Milícia) em São Vicente, Santo Amaro e São Tomé.",
+        efeitos: {
+          tesouro_delta: -150,
+          milicia_delta: { sao_vicente: 2, santo_amaro: 2, sao_tome: 2 }
+        }
+      },
+      {
+        id: "ignorar_fronteiras",
+        texto: "Focar no Litoral e Cortar Gastos",
+        descricao: "Ignorar o financiamento militar do interior. Sem custos imediatos. Mas a falta de controle estimula revoltas nas províncias do sul devido a saques e incursões espanholas. A revolta em São Vicente, Santo Amaro e São Tomé sobe em 20%.",
+        efeitos: {
+          tesouro_delta: 0,
+          revolta_delta: { sao_vicente: 20, santo_amaro: 20, sao_tome: 20 }
+        }
+      }
+    ]
+  },
+  {
     id: "inconfidencia_mineira_1789",
     nome: "A Inconfidência Mineira",
     tipo: "bifurcacao",
@@ -399,6 +485,91 @@ export const eventosColoniais = [
           tesouro_delta: -150,
           revolta_delta: { sao_vicente: -25, sao_tome: -25 },
           aliquota_delta: { sao_vicente: -0.05 }
+        }
+      }
+    ]
+  },
+  {
+    id: "familia_real_1808",
+    nome: "A Chegada da Família Real e a Abertura dos Portos",
+    tipo: "bifurcacao",
+    ano_fixo: 1808,
+    imagem: "assets/img/eventos/governo_geral.png",
+    descricao: "Em fuga das tropas de Napoleão Bonaparte, D. João VI e toda a Corte portuguesa aportam no Brasil. Este evento histórico marca a inversão metropolitana: o Brasil passa a ser a sede de fato do Império Português.",
+    opcoes: [
+      {
+        id: "estabelecer_corte_rio",
+        texto: "Acolher a Corte no Rio de Janeiro (Histórico)",
+        descricao: "Abrir os portos às nações amigas. Aumenta a alíquota de impostos em +3% globalmente para sustentar a corte e eleva a revolta global em +5% pelo arrocho tributário. No entanto, o PIB global cresce em 25% pelo comércio direto, e a defesa de São Tomé (Rio) aumenta em +3 com a Tropa de Linha real.",
+        efeitos: {
+          aliquota_delta_global: 0.03,
+          revolta_delta_global: 5,
+          milicia_delta: { sao_tome: 3 },
+          pib_multiplicador: {
+            maranhao: 1.25, ceara: 1.25, rio_grande: 1.25, itamaraca: 1.25,
+            pernambuco: 1.25, bahia: 1.25, ilheos: 1.25, porto_seguro: 1.25,
+            espirito_santo: 1.25, sao_tome: 1.25, sao_vicente: 1.25, santo_amaro: 1.25
+          }
+        }
+      },
+      {
+        id: "exigir_constituicao",
+        texto: "Exigir Contrapartidas Liberais das Capitanias (Ucrônico)",
+        descricao: "Aproveitar a fraqueza de D. João para negociar um pacto constitucional autônomo. As capitanias controlam suas próprias alfândegas. Reduz a alíquota tributária global em -2% e diminui a revolta global em -10%. Porém, a Coroa fica enfraquecida e o Tesouro Nacional perde 150 Contos imediatamente em taxas de recepção da nobreza.",
+        efeitos: {
+          tesouro_delta: -150,
+          aliquota_delta_global: -0.02,
+          revolta_delta_global: -10,
+          pib_multiplicador: {
+            maranhao: 1.10, ceara: 1.10, rio_grande: 1.10, itamaraca: 1.10,
+            pernambuco: 1.10, bahia: 1.10, ilheos: 1.10, porto_seguro: 1.10,
+            espirito_santo: 1.10, sao_tome: 1.10, sao_vicente: 1.10, santo_amaro: 1.10
+          }
+        }
+      },
+      {
+        id: "forcar_corte_nordeste",
+        texto: "⚡ Forçar o Desembarque em Salvador e Recife (Ucrônico)",
+        descricao: "Bloquear o porto do Rio e guiar a esquadra real para o Nordeste. A Corte se estabelece em Salvador e Recife. Transfere os maiores bônus econômicos para o Nordeste (+40% PIB em Bahia e Pernambuco e +3 Milícia na Bahia). No entanto, o Sudeste (São Tomé/Rio e São Vicente) sente-se marginalizado, sofrendo +20% de revolta local.",
+        efeitos: {
+          revolta_delta: { sao_tome: 20, sao_vicente: 20, bahia: -10, pernambuco: -10 },
+          milicia_delta: { bahia: 3 },
+          pib_multiplicador: {
+            bahia: 1.40, pernambuco: 1.40,
+            maranhao: 1.10, ceara: 1.10, rio_grande: 1.10, itamaraca: 1.10,
+            ilheos: 1.10, porto_seguro: 1.10, espirito_santo: 1.10,
+            sao_tome: 0.90, sao_vicente: 0.90, santo_amaro: 0.90
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: "revolucao_pernambucana_1817",
+    nome: "A Revolução Pernambucana de 1817",
+    tipo: "bifurcacao",
+    ano_fixo: 1817,
+    imagem: "assets/img/eventos/guerra_tamoios.png",
+    descricao: "A insatisfação com a carga tributária imposta pela Corte no Rio de Janeiro e a grande seca local inflamam Recife. Liderados por proprietários de terras, padres e maçons, os rebeldes proclamam a República de Pernambuco. A estabilidade no Nordeste está ameaçada.",
+    opcoes: [
+      {
+        id: "repressao_violenta",
+        texto: "Reprimir a Revolução com Força Total (Histórico)",
+        descricao: "Enviar frotas e tropas de linha para cercar Recife e prender os rebeldes. Custo de 150 Contos do Tesouro. A revolta em Pernambuco, Rio Grande e Itamaracá cai em 30%, mas o PIB de Pernambuco cai temporariamente (-15% de penalidade por 3 anos).",
+        efeitos: {
+          tesouro_delta: -150,
+          revolta_delta: { pernambuco: -30, rio_grande: -30, itamaraca: -30 },
+          penalidade_anual_estado: { estadoId: "pernambuco", tipo: "pib_penalidade", valor: 0.85, duracao_anos: 3 }
+        }
+      },
+      {
+        id: "conceder_autonomia",
+        texto: "Pactuar a Criação de um Parlamento Local (Ucrônico)",
+        descricao: "Negociar e conceder autonomia legislativa e fiscal ao Nordeste. Evita custos militares e reduz a revolta em Pernambuco, Rio Grande e Itamaracá em 20%. Porém, o repasse tributário de Pernambuco para a União cai, reduzindo a arrecadação local em 50% por 10 anos.",
+        efeitos: {
+          tesouro_delta: 0,
+          revolta_delta: { pernambuco: -20, rio_grande: -20, itamaraca: -20 },
+          penalidade_anual_estado: { estadoId: "pernambuco", tipo: "arrecadacao_penalidade", valor: 0.50, duracao_anos: 10 }
         }
       }
     ]
@@ -474,7 +645,19 @@ export const eventosColoniais = [
           revolta_delta_global: 15,
           fim_da_era_trigger: true
         }
+      },
+      {
+        id: "proclamar_republica",
+        texto: "🗳️ Proclamar a República Confederada do Brasil! (Ucrônico)",
+        descricao: "Rejeitar a monarquia e proclamar uma república descentralizada onde as províncias têm ampla autonomia fiscal e legislativa. A transição gera caos imediato (+20% revolta global) e custa 150 Contos do Tesouro para a reorganização política, mas elimina a dependência da Coroa europeia e abre um caminho de governo completamente diferente. As províncias retêm mais de sua riqueza.",
+        tipo_resultado: "ucronica_republica",
+        efeitos: {
+          tesouro_delta: -150,
+          revolta_delta_global: 20,
+          fim_da_era_trigger: true
+        }
       }
     ]
   }
 ];
+

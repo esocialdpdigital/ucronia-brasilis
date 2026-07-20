@@ -32,10 +32,18 @@ export const LORE_NIVEIS = {
     }
 };
 
-export function getUpgradeCost(nivelAtual, tipo) {
+export function getUpgradeCost(nivelAtual, tipo, perfil = null) {
     if (nivelAtual === 0) return Infinity; // Sem acesso/bloqueado
     if (nivelAtual >= 5) return Infinity; // Máximo nível 5
-    const base = tipo === 'milicia_local' ? 80 : (tipo === 'modal_portuario' ? 150 : 100);
+    let base = tipo === 'milicia_local' ? 80 : (tipo === 'modal_portuario' ? 150 : 100);
+    
+    // Aplicação dos perfis
+    if (perfil === 'militar' && tipo === 'milicia_local') {
+        base = Math.round(base * 0.8); // -20% custo milicia
+    } else if (perfil === 'jesuita') {
+        base = Math.round(base * 1.1); // +10% custo em tudo
+    }
+    
     return base * Math.pow(2, nivelAtual - 1);
 }
 
@@ -71,7 +79,7 @@ export function executeUpgrade(state, estadoId, modal) {
     if (!estado) return newState;
 
     const nivelAtual = estado.infraestrutura[modal];
-    const custo = getUpgradeCost(nivelAtual, modal);
+    const custo = getUpgradeCost(nivelAtual, modal, newState.globais.perfil_governante);
 
     if (custo !== Infinity && newState.globais.tesouro_nacional >= custo) {
         newState.globais.tesouro_nacional -= custo;
@@ -102,7 +110,7 @@ export function aumentarDefesa(state, estadoId) {
     if (!estado) return newState;
 
     const nivelAtual = estado.defesa.milicia_local;
-    const custo = getUpgradeCost(nivelAtual, 'milicia_local');
+    const custo = getUpgradeCost(nivelAtual, 'milicia_local', newState.globais.perfil_governante);
 
     if (custo !== Infinity && newState.globais.tesouro_nacional >= custo) {
         newState.globais.tesouro_nacional -= custo;
@@ -159,13 +167,14 @@ export function advanceYear(currentState) {
         estado.penalidade_ativa = estado.penalidades && estado.penalidades.length > 0;
 
         if (newState.globais.era_atual === "colonial") {
+            const multPorto = newState.globais.perfil_governante === 'comerciante' ? 1.15 : 1.0;
             // --- REGRA ECONÔMICA COLONIAL (Escalada reduzida para evitar hiperinflação) ---
             if (newState.globais.ano_atual <= 1550) {
                 // Ciclo do Pau-Brasil: O escoamento portuário é o que mais importa
-                bonusInfraestrutura = (estado.infraestrutura.modal_portuario * 0.003) + (estado.infraestrutura.modal_rodoviario * 0.001);
+                bonusInfraestrutura = (estado.infraestrutura.modal_portuario * 0.003 * multPorto) + (estado.infraestrutura.modal_rodoviario * 0.001);
             } else {
                 // A partir de 1550: Ciclo do Açúcar (afeta principalmente o Nordeste)
-                bonusInfraestrutura = (estado.infraestrutura.modal_portuario + estado.infraestrutura.modal_rodoviario) * 0.002;
+                bonusInfraestrutura = (estado.infraestrutura.modal_portuario * multPorto + estado.infraestrutura.modal_rodoviario) * 0.002;
                 
                 // Bônus do Ciclo do Açúcar: Apenas para capitanias nordestinas com vocação agrícola
                 const ehNordeste = estado.regiao === "nordeste";
@@ -226,6 +235,32 @@ export function advanceYear(currentState) {
                     }
                 }
             }
+        } else if (newState.globais.era_atual === "republica") {
+            // --- REGRA ECONÔMICA REPUBLICANA ---
+            // Infraestrutura impulsiona o crescimento, similar ao Império mas sem o bônus central
+            bonusInfraestrutura = (estado.infraestrutura.modal_portuario * 0.002) + (estado.infraestrutura.modal_rodoviario * 0.0025);
+
+            // Sem ferrovias centralizadas imperiais: bônus de modal rodoviário > 2 é menor
+            if (estado.infraestrutura.modal_rodoviario >= 2) {
+                bonusInfraestrutura += 0.03; // 3% vs 5% do Império — menos ferrovias coordenadas
+            }
+
+            // Ciclo do Café na República (SP/RJ/MG) a partir de 1835 — mais tardio e mais fraco sem as ferrovias imperiais
+            if (["sao_paulo", "rio_de_janeiro", "minas_gerais"].includes(estado.id) && newState.globais.ano_atual >= 1835) {
+                if (estado.infraestrutura.modal_rodoviario >= 2) {
+                    bonusCiclo = 0.08; // Café em +8% (vs +12% do Império) — descentralização limita o escoamento
+                } else {
+                    const msg = "Conselho das Províncias: Sem coordenação central para ferrovias, o café de " + estado.nome + " não chega aos portos! (Melhore o modal rodoviário)";
+                    if (!newState.globais.historico_alertas) newState.globais.historico_alertas = [];
+                    if (!newState.globais.historico_alertas.includes(msg)) {
+                        newState.globais.alertas_conselho.push(msg);
+                        newState.globais.historico_alertas.push(msg);
+                    }
+                }
+            }
+
+            // Volatilidade política republicana: descentralização aumenta revolta base +2 por ano
+            // (nota: aplicado abaixo após a declaração de deltaRevolta)
         }
 
         // Fatores negativos que retraem a economia: Impostos altos desincentivam, revoltas paralisam a produção.
@@ -269,6 +304,11 @@ export function advanceYear(currentState) {
 
         // --- LÓGICA DE MECÂNICA DE ATRITO (REVOLTA) ---
         let deltaRevolta = 0;
+
+        // Volatilidade adicional na Era República (descentralização gera instabilidade política)
+        if (newState.globais.era_atual === "republica") {
+            deltaRevolta += 2;
+        }
         if (estado.pacto_federativo.repasse_estado < 0.30) {
             deltaRevolta += 5;
         } else if (estado.pacto_federativo.repasse_estado > 0.60) {
@@ -286,6 +326,10 @@ export function advanceYear(currentState) {
         // A milícia local ajuda a manter a ordem e reduz a revolta passivamente
         if (estado.defesa.milicia_local > 1) {
             deltaRevolta -= (estado.defesa.milicia_local - 1) * 2;
+        }
+
+        if (newState.globais.perfil_governante === 'jesuita') {
+            deltaRevolta -= 1; // Pacificador Jesuíta amortece revoltas
         }
 
         estado.defesa.indice_revolta = Math.max(0, Math.min(100, estado.defesa.indice_revolta + deltaRevolta));
@@ -326,7 +370,16 @@ export function advanceYear(currentState) {
     }
 
     // 3. Processamento Final Global
-    newState.globais.tesouro_nacional += totalRecolhidoUniao - custoTotalManutencao;
+    let custoFinalManutencao = custoTotalManutencao;
+    // Na República não existe a Corte Imperial centralizada: redução de 20% no custo de manutenção
+    if (newState.globais.era_atual === "republica") {
+        custoFinalManutencao *= 0.80;
+    }
+    newState.globais.tesouro_nacional += totalRecolhidoUniao - custoFinalManutencao;
+
+    if (newState.globais.perfil_governante === 'militar') {
+        newState.globais.tesouro_nacional -= 5.0; // Fidalgo Militar drena -5 Contos por ano
+    }
     
     // Alerta de conselho na era colonial para bandeiras
     if (newState.globais.era_atual === "colonial" && newState.globais.ano_atual > 1550 && !newState.globais.bandeiras_financiadas && newState.globais.ano_atual < 1680) {

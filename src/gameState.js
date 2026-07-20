@@ -18,8 +18,8 @@ import { transicaoMapeamento } from '../data/provincia_mapping.js';
  * Retorna o estado inicial (fotografia do ano 1530)
  * @returns {Object} JSON representando o Estado Global e Entidades Regionais
  */
-export function getInitialGameState() {
-    return {
+export function getInitialGameState(sede = "bahia", perfil = "comerciante") {
+    const state = {
         // Dados Globais (União/Coroa)
         globais: {
             ano_atual: 1530,
@@ -41,12 +41,52 @@ export function getInitialGameState() {
             eventLog: [],                   // Diário de Bordo para auditar as jogadas
             settings: {
                 audioEnabled: true
-            }
+            },
+            capitania_sede: sede,           // Salva a capitania sede escolhida
+            perfil_governante: perfil       // Salva o perfil do governante escolhido
         },
         
         // Coleção de Entidades Regionais (12 Capitanias Hereditárias de 1534)
         estados: JSON.parse(JSON.stringify(capitaniasIniciais))
     };
+
+    // --- APLICAÇÃO DOS BÔNUS DE CAPITANIA SEDE ---
+    if (sede === "bahia") {
+        state.globais.tesouro_nacional += 50.0; // +50 Contos
+        const bahia = state.estados.find(e => e.id === "bahia");
+        if (bahia) {
+            bahia.defesa.milicia_local = 2; // Começa com Nível 2
+        }
+    } else if (sede === "pernambuco") {
+        const pernambuco = state.estados.find(e => e.id === "pernambuco");
+        if (pernambuco) {
+            pernambuco.infraestrutura.modal_portuario = 3; // Porto Nível 3
+            pernambuco.economia.vocacao_agricola = true;
+        }
+    } else if (sede === "sao_vicente") {
+        state.globais.investimento_exploracao = 150; // +150 Exploração inicial
+        const sao_vicente = state.estados.find(e => e.id === "sao_vicente");
+        if (sao_vicente) {
+            sao_vicente.infraestrutura.modal_rodoviario = 2; // Estrada Nível 2
+        }
+    }
+
+    // --- APLICAÇÃO DOS BÔNUS/PENALIDADES DE PERFIL ---
+    if (perfil === "comerciante") {
+        state.globais.perfil_comerciante = true;
+        state.estados.forEach(e => {
+            e.defesa.indice_revolta = Math.min(100, e.defesa.indice_revolta + 5); // +5% de revolta inicial
+        });
+    } else if (perfil === "jesuita") {
+        state.globais.perfil_jesuita = true;
+        state.estados.forEach(e => {
+            e.defesa.indice_revolta = Math.max(0, e.defesa.indice_revolta - 10); // -10% de revolta inicial
+        });
+    } else if (perfil === "militar") {
+        state.globais.perfil_militar = true;
+    }
+
+    return state;
 }
 
 /**
@@ -150,6 +190,93 @@ export function transitionToEra(previousState, eraDestino, tipoTransicao) {
                 });
             }
         }
+
+        return novoEstado;
+    }
+
+    // === ERA REPÚBLICA ===
+    if (eraDestino === "republica") {
+        // Herda os dados de estados_1822 como base, mas aplica modificadores republicanos
+        const novoEstado = {
+            globais: {
+                ano_atual: 1823, // 1 ano após o caos de 1822
+                tesouro_nacional: previousState.globais.tesouro_nacional, // Herda o tesouro (sem corte canônico)
+                inflacao: previousState.globais.inflacao || 0.07,
+                investimento_exploracao: 0,
+                bandeiras_financiadas: false,
+                alertas_conselho: [],
+                historico_alertas: JSON.parse(JSON.stringify(previousState.globais.historico_alertas || [])),
+                eventos_ocorridos: JSON.parse(JSON.stringify(previousState.globais.eventos_ocorridos || {})),
+                bonus_arrecadacao: previousState.globais.bonus_arrecadacao || 0,
+                eventos_pendentes_bifurcacao: [],
+                penalidades_ativas: [],
+                config_ui: JSON.parse(JSON.stringify(previousState.globais.config_ui || { exibir_popup_conselho: true })),
+                era_atual: "republica",
+                forma_governo: "republicana",    // Flag que controla mecânicas especiais da engine
+                fim_da_era: false,
+                historico_jogador: JSON.parse(JSON.stringify(previousState.globais.historico_jogador || [])),
+                decisoes_historicas: JSON.parse(JSON.stringify(previousState.globais.decisoes_historicas || [])),
+                divergencia_atual: previousState.globais.divergencia_atual || 0.0,
+                eventLog: JSON.parse(JSON.stringify(previousState.globais.eventLog || [])),
+                settings: JSON.parse(JSON.stringify(previousState.globais.settings || { audioEnabled: true }))
+            },
+            estados: []
+        };
+
+        // Usa os estados de 1822 como template, com modificadores de autonomia republicana
+        const mapeamento = transicaoMapeamento.colonia_para_imperio;
+        const estadosAnteriores = previousState.estados;
+
+        estados1822.forEach(provTemplate => {
+            const provNova = JSON.parse(JSON.stringify(provTemplate));
+            const mapaProv = mapeamento[provNova.id];
+
+            // Herda infraestrutura do jogador (mesma lógica ucrônica do Império)
+            if (mapaProv && Object.keys(mapaProv.fontes).length > 0) {
+                let pibExtra = 0;
+                let popExtra = 0;
+                let maxPorto = provNova.infraestrutura.modal_portuario;
+                let maxEstrada = provNova.infraestrutura.modal_rodoviario;
+                let maxMilicia = provNova.defesa.milicia_local;
+                let sumRevolta = 0;
+                let countFontes = 0;
+
+                for (const [capId, peso] of Object.entries(mapaProv.fontes)) {
+                    const capAntiga = estadosAnteriores.find(e => e.id === capId);
+                    if (capAntiga) {
+                        pibExtra += capAntiga.economia.pib_total * peso;
+                        popExtra += capAntiga.demografia.populacao_total * peso;
+                        maxPorto = Math.max(maxPorto, capAntiga.infraestrutura.modal_portuario);
+                        maxEstrada = Math.max(maxEstrada, capAntiga.infraestrutura.modal_rodoviario);
+                        maxMilicia = Math.max(maxMilicia, capAntiga.defesa.milicia_local);
+                        sumRevolta += capAntiga.defesa.indice_revolta;
+                        countFontes++;
+                    }
+                }
+
+                provNova.economia.pib_total = Math.round((mapaProv.base_pib + pibExtra) * 10) / 10;
+                provNova.demografia.populacao_total = Math.round(mapaProv.base_pop + popExtra);
+                provNova.infraestrutura.modal_portuario = maxPorto;
+                provNova.infraestrutura.modal_rodoviario = maxEstrada;
+                provNova.defesa.milicia_local = maxMilicia;
+                if (countFontes > 0) {
+                    provNova.defesa.indice_revolta = Math.round(sumRevolta / countFontes);
+                }
+            }
+
+            // === MODIFICADORES REPUBLICANOS ===
+            // Províncias retêm mais receita (autonomia fiscal da República Confederada)
+            provNova.pacto_federativo.retencao_uniao = Math.max(0.35, (provNova.pacto_federativo.retencao_uniao || 0.60) - 0.15);
+            provNova.pacto_federativo.repasse_estado = 1.0 - provNova.pacto_federativo.retencao_uniao;
+
+            novoEstado.estados.push(provNova);
+        });
+
+        novoEstado.globais.eventLog.push({
+            ano: 1822,
+            tipo: "independencia",
+            texto: "🗳️ REPÚBLICA CONFEDERADA DO BRASIL PROCLAMADA! As províncias assumem sua autonomia. O caminho da história foi alterado para sempre."
+        });
 
         return novoEstado;
     }

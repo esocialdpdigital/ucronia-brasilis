@@ -177,6 +177,85 @@
         </div>
     </div>
 
+    <!-- MODAL SETUP DE PARTIDA (CAPITANIA E PERFIL) -->
+    <div id="modal-setup-inicial" class="fullscreen-overlay"
+        style="display: none; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+        <div class="modal-box"
+            style="width: 750px; max-width: 95%; background: var(--bg-color); border: 2px solid var(--header-color); border-radius: 12px; padding: 25px; color: var(--text-color); max-height: 90vh; display: flex; flex-direction: column; box-shadow: var(--panel-shadow);">
+            <h2 style="color: var(--header-color); margin-top: 0; font-family: var(--header-font-family); text-align: center;">🛡️ Setup da Simulação Colonial</h2>
+            <p style="font-size: 13px; opacity: 0.9; text-align: center; margin-bottom: 20px;">Defina a sede de seu governo e as características de sua liderança para a Era Colonial.</p>
+
+            <div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-right: 5px;">
+                <!-- SEÇÃO CAPITANIA SEDE -->
+                <div>
+                    <h3 style="color: var(--header-color); border-bottom: 1px dashed var(--panel-border); padding-bottom: 5px; margin-top: 0; font-size: 15px;">⚓ Escolha a Capitania Sede</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+                        <div class="setup-card selected" data-type="sede" data-value="bahia" style="padding: 12px; background: rgba(255,255,255,0.05); border: 2px solid var(--header-color); border-radius: 8px; cursor: pointer; position: relative;">
+                            <strong style="display: block; font-size: 14px; color: var(--header-color);">👑 Bahia</strong>
+                            <span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 4px; line-height: 1.3;">Sede histórica do Governo-Geral. Centralização administrativa do Império.</span>
+                            <div style="margin-top: 8px; font-size: 11px; color: #388e3c; font-weight: bold;">
+                                📈 Tesouro: +10% iniciais (+50 Contos)<br>
+                                🛡️ Defesa: Começa com Milícia Nível 2
+                            </div>
+                        </div>
+                        <div class="setup-card" data-type="sede" data-value="pernambuco" style="padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 8px; cursor: pointer; position: relative; opacity: 0.8;">
+                            <strong style="display: block; font-size: 14px; color: var(--header-color);">🍬 Pernambuco</strong>
+                            <span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 4px; line-height: 1.3;">A mais próspera na cana-de-açúcar e exportação colonial.</span>
+                            <div style="margin-top: 8px; font-size: 11px; color: #388e3c; font-weight: bold;">
+                                🚢 Porto: Começa no Nível 3<br>
+                                ⚙️ Agrícola: Bônus de produção permanente
+                            </div>
+                        </div>
+                        <div class="setup-card" data-type="sede" data-value="sao_vicente" style="padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 8px; cursor: pointer; position: relative; opacity: 0.8;">
+                            <strong style="display: block; font-size: 14px; color: var(--header-color);">✨ São Vicente</strong>
+                            <span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 4px; line-height: 1.3;">Base para exploração do interior e expedições bandeirantes.</span>
+                            <div style="margin-top: 8px; font-size: 11px; color: #388e3c; font-weight: bold;">
+                                🧭 Ouro: Começa com +150 Exploração<br>
+                                🛣️ Estradas: Começa no Nível 2
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO PERFIL DO GOVERNANTE -->
+                <div>
+                    <h3 style="color: var(--header-color); border-bottom: 1px dashed var(--panel-border); padding-bottom: 5px; margin-top: 0; font-size: 15px;">👤 Escolha o Perfil do Governante</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+                        <div class="setup-card selected" data-type="perfil" data-value="comerciante" style="padding: 12px; background: rgba(255,255,255,0.05); border: 2px solid var(--header-color); border-radius: 8px; cursor: pointer; position: relative;">
+                            <strong style="display: block; font-size: 14px; color: var(--header-color);">💰 Comerciante Mercantilista</strong>
+                            <span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 4px; line-height: 1.3;">Foco total na exportação, tarifas alfandegárias e comércio exterior.</span>
+                            <div style="margin-top: 8px; font-size: 11px; line-height: 1.2;">
+                                <span style="color: #388e3c; font-weight: bold;">📈 +10% PIB Comercial / Bônus nos Portos</span><br>
+                                <span style="color: #d32f2f; font-weight: bold;">⚠️ +5% de Revolta Inicial em todas as capitanias</span>
+                            </div>
+                        </div>
+                        <div class="setup-card" data-type="perfil" data-value="jesuita" style="padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 8px; cursor: pointer; position: relative; opacity: 0.8;">
+                            <strong style="display: block; font-size: 14px; color: var(--header-color);">🕊️ Pacificador Jesuíta</strong>
+                            <span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 4px; line-height: 1.3;">Foco no desenvolvimento social, missões e amortecimento de revoltas.</span>
+                            <div style="margin-top: 8px; font-size: 11px; line-height: 1.2;">
+                                <span style="color: #388e3c; font-weight: bold;">📉 -10% de Revolta em todas as capitanias</span><br>
+                                <span style="color: #d32f2f; font-weight: bold;">⚠️ Custos de infraestrutura +10% maiores</span>
+                            </div>
+                        </div>
+                        <div class="setup-card" data-type="perfil" data-value="militar" style="padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: 8px; cursor: pointer; position: relative; opacity: 0.8;">
+                            <strong style="display: block; font-size: 14px; color: var(--header-color);">🛡️ Fidalgo Militar</strong>
+                            <span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 4px; line-height: 1.3;">Organização de milícias, defesa das fronteiras e manutenção da ordem.</span>
+                            <div style="margin-top: 8px; font-size: 11px; line-height: 1.2;">
+                                <span style="color: #388e3c; font-weight: bold;">⚔️ Custos de Milícias reduzidos em -20%</span><br>
+                                <span style="color: #d32f2f; font-weight: bold;">⚠️ Tesouro drena -5 Contos por ano de manutenção</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button id="btn-voltar-setup" style="width: 30%; padding: 10px; background-color: var(--btn-bg); opacity: 0.7; color: var(--btn-text); border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Voltar</button>
+                <button id="btn-iniciar-jogo-setup" style="width: 70%; padding: 10px; background-color: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Assumir Governo ⛵</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DO MANUAL / TUTORIAL -->
     <div id="modal-manual-tutorial" class="fullscreen-overlay"
         style="display: none; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
@@ -264,6 +343,12 @@
                                 Tesouro: $<span id="tesouro_nacional">-</span></div>
                         </div>
 
+                        <!-- PAINEL DE BÔNUS ATIVOS -->
+                        <div id="painel-bonus-ativos" style="display: none; justify-content: center; gap: 8px; margin-bottom: 12px; font-size: 11px;">
+                            <span id="badge-sede" class="badge-setup" style="padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); font-weight: bold; cursor: help;" data-tooltip-game="">Sede: -</span>
+                            <span id="badge-perfil" class="badge-setup" style="padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border); font-weight: bold; cursor: help;" data-tooltip-game="">Perfil: -</span>
+                        </div>
+
                         <!-- BARRA DE PROGRESSO DA ERA -->
                         <div class="era-progresso-container"
                             data-tooltip-game="📈 &lt;strong&gt;Progresso da Era Atual&lt;/strong&gt;&lt;br&gt;Indica a evolução temporal ao longo da era atual. Os marcadores circulares na barra indicam anos em que ocorrerão eventos de bifurcação histórica fixados importantes (passe o mouse sobre eles no mapa ou na barra para detalhes).">
@@ -300,6 +385,17 @@
                                 data-tooltip-game="👑 &lt;strong&gt;Dissolver Assembleia Geral&lt;/strong&gt;&lt;br&gt;O Imperador dissolve o Parlamento para restaurar a ordem pública.&lt;br&gt;• Reduz a revolta em &lt;strong&gt;-15%&lt;/strong&gt; em todas as províncias.&lt;br&gt;• Custo político e diplomático de &lt;strong&gt;-80 Contos&lt;/strong&gt; do Tesouro."
                                 style="width: 100%; background-color: #f38ba8; color: #11111b; font-size: 11px; padding: 8px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer;">Dissolver
                                 Assembleia (-80)</button>
+                        </div>
+                        <!-- PAINEL CONSELHO DAS PROVÍNCIAS (Era República) -->
+                        <div id="painel-conselho-provincias"
+                            style="display: none; flex-direction: column; gap: 8px; margin-top: 12px; padding: 12px; border-radius: 8px; border: 1px solid #cba6f7; background: rgba(203,166,247,0.07); text-align: left;">
+                            <strong
+                                style="font-size: 12px; color: #cba6f7; text-align: center; display: block; margin-bottom: 5px;">🗳️
+                                Conselho das Províncias</strong>
+                            <p style="font-size: 10px; opacity: 0.75; line-height: 1.4; margin: 0;">
+                                Na República Confederada, não existe Poder Moderador central. As províncias governam-se por seus Conselhos locais.
+                                A instabilidade política aumenta naturalmente (+2% revolta/ano), mas os custos da Corte Imperial não existem mais (−20% manutenção).
+                            </p>
                         </div>
                         <button id="btn-avancar"
                             data-tooltip-game="⏩ &lt;strong&gt;Avançar 1 Ano&lt;/strong&gt;&lt;br&gt;Simula um ano de governo: impostos são coletados, o PIB de cada capitania cresce ou decresce, e eventos históricos podem ocorrer — incluindo escolhas que bifurcam a história."
@@ -737,7 +833,18 @@
                                 comeca com os dados historicos reais de 1822. O jogo recalibra para a linha do tempo
                                 oficial do Brasil Imperial.</span>
                         </button>
+                        <button id="btn-transicao-republica" class="btn-escolha"
+                            style="display: none; padding: 14px 16px; text-align: left; border: 1px solid #cba6f7; border-radius: 10px; background: rgba(203,166,247,0.07); color: var(--text-color); cursor: pointer; transition: all 0.2s; font-family: inherit;">
+                            <strong
+                                style="display: block; font-size: 14px; color: #cba6f7; margin-bottom: 5px;">&#x1F5F3;&#xFE0F;
+                                Fundar a Republica Confederada do Brasil</strong>
+                            <span style="font-size: 11px; opacity: 0.8; display: block; line-height: 1.4;">Inicia a era com
+                                governo descentralizado. As provincias retem mais receita e tem maior autonomia, mas a
+                                instabilidade politica e maior (+2% revolta/ano). Todos os recursos acumulados sao herdados.
+                                <strong style="color: #cba6f7;">Sem Poder Moderador.</strong></span>
+                        </button>
                     </div>
+
                     <div id="transicao-gameover-botoes" style="display: none; gap: 12px; flex-direction: column;">
                         <button id="btn-transicao-gameover-reiniciar"
                             style="width: 100%; padding: 14px 16px; font-weight: bold; font-size: 14px; border: none; border-radius: 10px; background: #f38ba8; color: #11111b; cursor: pointer; font-family: inherit;">

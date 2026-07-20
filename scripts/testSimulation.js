@@ -12,7 +12,7 @@ console.log("==========================================================\n");
 // Array para armazenar log sumarizado de eventos apenas para exibição
 const historicoEventos = [];
 
-for (let i = 0; i < 265; i++) {
+for (let i = 0; i < 300; i++) {
     const anoAtual = currentState.globais.ano_atual;
 
     // --- DECISÕES POLÍTICAS DO ANO ---

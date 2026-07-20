@@ -142,8 +142,9 @@ let zoomBehavior;
 const limitesEras = {
     colonial: { inicio: 1530, fim: 1822 },
     imperio: { inicio: 1822, fim: 1889 },
-    republica: { inicio: 1889, fim: 1988 }
+    republica: { inicio: 1823, fim: 1930 } // Era República Confederada (ucrônica, 1823) e República histórica (1889+)
 };
+
 
 // Filtro regional ativo unificado
 let filtroRegiaoAtual = 'todos';
@@ -764,6 +765,43 @@ function updateInterface(state) {
         tesouroEl.style.color = "#a6e3a1";
     }
 
+    // Atualiza Painel de Bônus Ativos (Capitania Sede e Perfil do Governante)
+    const painelBonusAtivos = document.getElementById('painel-bonus-ativos');
+    if (painelBonusAtivos) {
+        if (state.globais.era_atual === 'colonial' && state.globais.capitania_sede && state.globais.perfil_governante) {
+            painelBonusAtivos.style.display = 'flex';
+            
+            const badgeSede = document.getElementById('badge-sede');
+            const badgePerfil = document.getElementById('badge-perfil');
+            
+            const sedesLores = {
+                bahia: { label: "👑 Bahia Sede", desc: "Sede: Bahia<br>• Tesouro: +10% iniciais (+50 Contos)<br>• Defesa: Começa com Milícia Nível 2 na Bahia" },
+                pernambuco: { label: "🍬 Pernambuco Sede", desc: "Sede: Pernambuco<br>• Porto: Começa no Nível 3<br>• Agrícola: Bônus de produção permanente" },
+                sao_vicente: { label: "✨ S. Vicente Sede", desc: "Sede: São Vicente<br>• Ouro: Começa com +150 Exploração<br>• Estradas: Começa no Nível 2 em São Vicente" }
+            };
+
+            const perfisLores = {
+                comerciante: { label: "💰 Comerciante", desc: "Perfil: Comerciante Mercantilista<br>• +15% eficiência nos Portos<br>• +5% de Revolta Inicial global" },
+                jesuita: { label: "🕊️ Jesuíta", desc: "Perfil: Pacificador Jesuíta<br>• -10% de Revolta Inicial global<br>• -1 de Revolta ao ano globalmente<br>• Custos de infraestrutura +10% maiores" },
+                militar: { label: "🛡️ Militar", desc: "Perfil: Fidalgo Militar<br>• Custos de Milícias reduzidos em -20%<br>• Tesouro drena -5 Contos por ano de manutenção" }
+            };
+
+            const sedeInfo = sedesLores[state.globais.capitania_sede];
+            const perfilInfo = perfisLores[state.globais.perfil_governante];
+
+            if (badgeSede && sedeInfo) {
+                badgeSede.innerHTML = sedeInfo.label;
+                badgeSede.setAttribute('data-tooltip-game', sedeInfo.desc);
+            }
+            if (badgePerfil && perfilInfo) {
+                badgePerfil.innerHTML = perfilInfo.label;
+                badgePerfil.setAttribute('data-tooltip-game', perfilInfo.desc);
+            }
+        } else {
+            painelBonusAtivos.style.display = 'none';
+        }
+    }
+
     const btnBailout = document.getElementById('btn-bailout');
     if (btnBailout) {
         const era = state.globais.era_atual;
@@ -791,6 +829,16 @@ function updateInterface(state) {
             painelPoderEl.style.display = 'flex';
         } else {
             painelPoderEl.style.display = 'none';
+        }
+    }
+
+    // Controla o painel do Conselho das Províncias (apenas na Era República)
+    const painelConselhoEl = document.getElementById('painel-conselho-provincias');
+    if (painelConselhoEl) {
+        if (state.globais.era_atual === 'republica') {
+            painelConselhoEl.style.display = 'flex';
+        } else {
+            painelConselhoEl.style.display = 'none';
         }
     }
 
@@ -884,19 +932,44 @@ function updateInterface(state) {
                 if (era === "colonial") {
                     const isPrecoce = anoIndep < 1822;
                     const isUcronica = tipoIndep === "ucronica";
+                    const isRepublica = tipoIndep === "ucronica_republica";
 
-                    if (tituloEl) tituloEl.innerText = isPrecoce
-                        ? `⚡ Independência Precoce! (${anoIndep})`
-                        : "🇧🇷 Independência do Brasil — 1822";
+                    // Visibilidade dos botões
+                    const btnUcronica = document.getElementById('btn-transicao-ucronica');
+                    const btnCanonica = document.getElementById('btn-transicao-canonica');
+                    const btnRepublica = document.getElementById('btn-transicao-republica');
+
+                    if (isRepublica) {
+                        // Só o botão da República faz sentido neste fluxo
+                        if (btnUcronica) btnUcronica.style.display = 'none';
+                        if (btnCanonica) btnCanonica.style.display = 'none';
+                        if (btnRepublica) btnRepublica.style.display = 'block';
+                    } else {
+                        if (btnUcronica) btnUcronica.style.display = 'block';
+                        if (btnCanonica) btnCanonica.style.display = 'block';
+                        if (btnRepublica) btnRepublica.style.display = 'none';
+                    }
+
+                    if (tituloEl) tituloEl.innerText = isRepublica
+                        ? "🗳️ República Confederada — 1822"
+                        : isPrecoce
+                            ? `⚡ Independência Precoce! (${anoIndep})`
+                            : "🇧🇷 Independência do Brasil — 1822";
 
                     if (bannerImg) {
-                        bannerImg.src = isPrecoce
-                            ? "assets/img/eventos/independencia_precoce.png"
-                            : "assets/img/eventos/independencia.png";
+                        bannerImg.src = isRepublica
+                            ? "assets/img/eventos/independencia.png"
+                            : isPrecoce
+                                ? "assets/img/eventos/independencia_precoce.png"
+                                : "assets/img/eventos/independencia.png";
                     }
 
                     if (badgeEl) {
-                        if (isPrecoce && isUcronica) {
+                        if (isRepublica) {
+                            badgeEl.textContent = "⚡ Ucrônica — República";
+                            badgeEl.style.borderColor = "#cba6f7";
+                            badgeEl.style.color = "#cba6f7";
+                        } else if (isPrecoce && isUcronica) {
                             badgeEl.textContent = "⚡ Ucrônica — Precoce";
                             badgeEl.style.borderColor = "#cba6f7";
                             badgeEl.style.color = "#cba6f7";
@@ -912,7 +985,14 @@ function updateInterface(state) {
                     }
 
                     if (narrativaEl) {
-                        if (isPrecoce) {
+                        if (isRepublica) {
+                            narrativaEl.innerHTML = `Em <strong>${anoIndep}</strong>, após séculos de dominação colonial, o Brasil rompeu não apenas com Portugal,
+                                mas com a própria tradição monárquica. Em vez do Império de Dom Pedro I, você liderou a fundação da
+                                <strong>República Confederada do Brasil</strong> — uma nação descentralizada onde cada província governa
+                                a si mesma dentro de um pacto federal.<br><br>
+                                O caminho será instável, mas as possíncias de um Brasil alternativo são infinitas.
+                                <strong style="color: #cba6f7;">Sem Poder Moderador. Sem a Corte Imperial. A soberania é das províncias.</strong>`;
+                        } else if (isPrecoce) {
                             narrativaEl.innerHTML = `O Brasil proclamou sua independência em <strong>${anoIndep}</strong>, décadas antes do esperado pela história.
                                 Sua hábil administração gerou uma colônia próspera e unida o suficiente para romper com Lisboa.
                                 A linhagem de governadores e fazendeiros que você consolidou transformou o destino da nação.
@@ -1158,6 +1238,15 @@ function mostrarIntroEra(era) {
         texto = `Ano de 1822. O grito do Ipiranga ecoa e o Brasil declara sua emancipação de Portugal. O novo Império do Brasil nasce sob a liderança do jovem Imperador D. Pedro I, mas enfrenta imensos desafios de integração nacional e ameaças de fragmentação.
         <br><br>
         Composto agora por 20 Províncias unificadas, você assume o papel de Primeiro-Ministro com o Poder Moderador. Governe o país enfrentando as revoltas regenciais, o novo Ciclo do Café, o planejamento das primeiras Ferrovias e a delicada Questão Abolicionista. Conduzirá a pátria à estabilidade sob a Coroa ou ao colapso republicano?`;
+    } else if (era === 'republica') {
+        imgSrc = "assets/img/eventos/independencia.png";
+        titulo = "🗳️ República Confederada do Brasil (1823)";
+        badgeText = "⚡ Ucrônia Republicana";
+        texto = `Ano de 1823. A monarquia foi rejeitada. Sob sua liderança, o Brasil emerge como uma <strong>República Confederada</strong> — uma experiência política inédita no continente. As Províncias, agora autônomas, retêm maior parcela de suas riquezas e governam-se com ampla liberdade.
+        <br><br>
+        Mas o caminho será turbulento. Sem o Poder Moderador de um Imperador, as tensões regionais serão intensas (+2% revolta/ano). Sem a coordenação imperial das ferrovias, o Ciclo do Café demorará mais a chegar (+8% em vez de +12%). Em compensação, os custos da Corte Imperial deixam de existir — o Tesouro drena 20% menos por ano.
+        <br><br>
+        <strong style="color: #cba6f7;">Esta é uma ucronia profunda. O Brasil nunca visto pela história.</strong>`;
     }
 
     if (imgIntro) imgIntro.src = imgSrc;
@@ -1463,6 +1552,35 @@ if (btnTransicaoCanonica) {
     });
 }
 
+// Listener do Botão Republicano (caminho ucrônico: República Confederada)
+const btnTransicaoRepublica = document.getElementById('btn-transicao-republica');
+if (btnTransicaoRepublica) {
+    btnTransicaoRepublica.addEventListener('click', () => {
+        const pibTotal = currentState.estados.reduce((acc, e) => acc + e.economia.pib_total, 0);
+        const tesouro = currentState.globais.tesouro_nacional;
+        const mediaRevolta = currentState.estados.reduce((acc, e) => acc + e.defesa.indice_revolta, 0) / currentState.estados.length;
+        const pontos = Math.round(pibTotal * 1.0 + tesouro * 0.5 - mediaRevolta * 5);
+
+        const eraAnterior = currentState.globais.era_atual;
+
+        // Salva pontos da era colonial
+        registrarPontuacaoEra(eraAnterior, "republica", pontos);
+
+        // Transiciona para a Era República
+        currentState = transitionToEra(currentState, "republica", "ucronica");
+
+        if (modalTransicao) modalTransicao.style.display = 'none';
+
+        // Recria cards para as províncias
+        createCards(currentState);
+        updateInterface(currentState);
+
+        saveGameState(currentState).catch(e => console.error(e));
+        mostrarToast(`<strong style="color: #cba6f7;">🗳️ República Proclamada!</strong> Bem-vindo à <strong>República Confederada do Brasil</strong>. As províncias agora governam a si mesmas!`);
+        mostrarIntroEra('republica');
+    });
+}
+
 // Listeners do Poder Moderador
 const btnDecretarImpostos = document.getElementById('btn-decretar-impostos');
 if (btnDecretarImpostos) {
@@ -1749,28 +1867,92 @@ function initAuthFlow() {
         });
     }
 
+    // Ações do Modal de Setup Inicial
+    const modalSetup = document.getElementById('modal-setup-inicial');
+    const btnVoltarSetup = document.getElementById('btn-voltar-setup');
+    const btnIniciarJogoSetup = document.getElementById('btn-iniciar-jogo-setup');
+    
+    let selectedSede = 'bahia';
+    let selectedPerfil = 'comerciante';
+
+    // Seleção de cards no Setup
+    const setupCards = document.querySelectorAll('.setup-card');
+    setupCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const type = card.getAttribute('data-type');
+            const val = card.getAttribute('data-value');
+
+            // Remove a seleção dos outros cards do mesmo tipo
+            document.querySelectorAll(`.setup-card[data-type="${type}"]`).forEach(c => {
+                c.classList.remove('selected');
+                c.style.border = '1px solid var(--panel-border)';
+                c.style.background = 'rgba(255,255,255,0.02)';
+                c.style.opacity = '0.8';
+            });
+
+            // Adiciona seleção ao card clicado
+            card.classList.add('selected');
+            card.style.border = '2px solid var(--header-color)';
+            card.style.background = 'rgba(255,255,255,0.05)';
+            card.style.opacity = '1.0';
+
+            if (type === 'sede') {
+                selectedSede = val;
+            } else if (type === 'perfil') {
+                selectedPerfil = val;
+            }
+        });
+    });
+
+    if (btnVoltarSetup && modalSetup && modalSelecaoEra) {
+        btnVoltarSetup.addEventListener('click', () => {
+            modalSetup.style.display = 'none';
+            modalSelecaoEra.style.display = 'flex';
+        });
+    }
+
+    if (btnIniciarJogoSetup && modalSetup) {
+        btnIniciarJogoSetup.addEventListener('click', async () => {
+            modalSetup.style.display = 'none';
+            menuScreen.style.display = 'none';
+            gameContainer.style.display = 'flex';
+
+            currentState = getInitialGameState(selectedSede, selectedPerfil);
+
+            createCards(currentState);
+            updateInterface(currentState);
+            await saveGameState(currentState);
+            mostrarToast(`<strong style="color: #a6e3a1;">Jogo Iniciado:</strong> Simulação colonial iniciada com sede em ${selectedSede.toUpperCase()}.`);
+            mostrarIntroEra('colonial');
+        });
+    }
+
     // Selecionar Era para Novo Jogo
     const btnEraChoices = document.querySelectorAll('.btn-era-select-choice');
     btnEraChoices.forEach(btn => {
         btn.addEventListener('click', async () => {
             const era = btn.getAttribute('data-era');
-            modalSelecaoEra.style.display = 'none';
-            menuScreen.style.display = 'none';
-            gameContainer.style.display = 'flex';
-
+            
             if (era === 'colonial') {
-                currentState = getInitialGameState();
+                modalSelecaoEra.style.display = 'none';
+                if (modalSetup) {
+                    modalSetup.style.display = 'flex';
+                }
             } else if (era === 'imperio') {
-                // Pula diretamente para a transição do Império
-                currentState = getInitialGameState();
-                currentState = transitionToEra(currentState, 'imperio');
-            }
+                modalSelecaoEra.style.display = 'none';
+                menuScreen.style.display = 'none';
+                gameContainer.style.display = 'flex';
 
-            createCards(currentState);
-            updateInterface(currentState);
-            await saveGameState(currentState);
-            mostrarToast(`<strong style="color: #a6e3a1;">Jogo Iniciado:</strong> Simulação carregada em ${currentState.globais.ano_atual}.`);
-            mostrarIntroEra(era);
+                // Pula diretamente para a transição do Império
+                currentState = getInitialGameState('bahia', 'neutro');
+                currentState = transitionToEra(currentState, 'imperio');
+                
+                createCards(currentState);
+                updateInterface(currentState);
+                await saveGameState(currentState);
+                mostrarToast(`<strong style="color: #a6e3a1;">Jogo Iniciado:</strong> Simulação carregada em ${currentState.globais.ano_atual}.`);
+                mostrarIntroEra(era);
+            }
         });
     });
 
