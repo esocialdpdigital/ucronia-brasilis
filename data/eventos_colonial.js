@@ -268,11 +268,17 @@ export const eventosColoniais = [
       {
         id: "resistencia_armada",
         texto: "Resistência Armada",
-        descricao: "Financiar a resistência militar (-300 Contos). Pernambuco sofre destruição imediata (PIB cai pela metade por 5 anos), mas ganha fortificações (+3 Defesa).",
+        descricao: "Financiar a resistência militar (-300 Contos). Pernambuco cai sob ocupação holandesa e sofre guerra de atrito, mas nossa milícia ganha +3 de defesa e a população se mobiliza para a reconquista.",
         efeitos: {
           tesouro_delta: -300,
           penalidade_anual_estado: { estadoId: "pernambuco", tipo: "pib_penalidade", valor: 0.5, duracao_anos: 5 },
-          milicia_delta: { pernambuco: 3 }
+          milicia_delta: { pernambuco: 3 },
+          set_status_territorio: {
+            estadoId: "pernambuco",
+            status: "invadido",
+            invadido_por: "holanda",
+            duracao_invasao: 15
+          }
         }
       },
       {

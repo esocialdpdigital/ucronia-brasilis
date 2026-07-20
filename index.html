@@ -714,6 +714,40 @@
         </div>
     </div>
 
+    <!-- MODAL DE CONFIGURAÇÕES DE JOGO -->
+    <div id="modal-settings"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); display: none; justify-content: center; align-items: center; z-index: 25000; backdrop-filter: blur(8px);">
+        <div class="modal-box" style="max-width: 450px; width: 90%; background: var(--panel-bg); border: 2px solid var(--header-color); border-radius: 12px; padding: 25px; box-shadow: var(--panel-shadow);">
+            <h2 style="color: var(--header-color); margin-top: 0; display: flex; align-items: center; gap: 10px;">⚙️ Configurações de Jogo</h2>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px; margin: 20px 0; text-align: left;">
+                <label style="display: flex; align-items: center; justify-content: space-between; font-size: 14px; cursor: pointer;">
+                    <span>🔮 <strong>Exibir Rumores & Previsões:</strong></span>
+                    <input type="checkbox" id="chk-settings-rumores" style="transform: scale(1.3); cursor: pointer;">
+                </label>
+                <div style="font-size: 11px; opacity: 0.8; margin-top: -10px;">Mapeia possíveis eventos futuros com base no seu nível de ucrônia.</div>
+                
+                <hr style="border: 0; border-top: 1px dashed var(--panel-border); margin: 5px 0;">
+
+                <label style="display: flex; align-items: center; justify-content: space-between; font-size: 14px; cursor: pointer;">
+                    <span>🌊 <strong>Efeito de Oceano Animado:</strong></span>
+                    <input type="checkbox" id="chk-settings-oceano" style="transform: scale(1.3); cursor: pointer;" checked>
+                </label>
+                <div style="font-size: 11px; opacity: 0.8; margin-top: -10px;">Adiciona textura e movimento de ondas marítimas ao fundo do mapa.</div>
+
+                <hr style="border: 0; border-top: 1px dashed var(--panel-border); margin: 5px 0;">
+
+                <label style="display: flex; align-items: center; justify-content: space-between; font-size: 14px; cursor: pointer;">
+                    <span>🔊 <strong>Efeitos Sonoros:</strong></span>
+                    <input type="checkbox" id="chk-settings-audio" style="transform: scale(1.3); cursor: pointer;">
+                </label>
+            </div>
+
+            <button id="btn-fechar-settings"
+                style="width: 100%; padding: 12px; background-color: var(--header-color); color: var(--bg-color); border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Salvar e Fechar</button>
+        </div>
+    </div>
+
     <!-- MODAL DE INTRODUCAO DE ERA (Imersivo e Narrativo) -->
     <div id="modal-intro-era"
         style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 15000; backdrop-filter: blur(15px);">

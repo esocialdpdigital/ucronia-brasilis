@@ -748,6 +748,17 @@ function updateInterface(state) {
     
     document.body.dataset.era = era;
 
+    // Controla a animação do oceano no mapa
+    const colRight = document.querySelector('.col-right');
+    if (colRight) {
+        const oceanEnabled = state.globais.settings ? state.globais.settings.oceanAnimated !== false : true;
+        if (oceanEnabled) {
+            colRight.classList.add('ocean-animated');
+        } else {
+            colRight.classList.remove('ocean-animated');
+        }
+    }
+
     // Sincroniza som
     const btnToggleAudio = document.getElementById('btn-toggle-audio');
     if (btnToggleAudio) {
@@ -1612,18 +1623,20 @@ if (btnTransicaoRepublica) {
 // Listeners do Poder Moderador
 const btnDecretarImpostos = document.getElementById('btn-decretar-impostos');
 
-// Listener de Configurações ⚙️ (Timeline Engine & Áudio)
+// Listener de Configurações ⚙️ (Timeline Engine, Oceano & Áudio)
 const btnOpenSettings = document.getElementById('btn-open-settings');
 const modalSettings = document.getElementById('modal-settings');
 const btnFecharSettings = document.getElementById('btn-fechar-settings');
-const chkToggleRumores = document.getElementById('chk-toggle-rumores');
-const chkToggleAudio = document.getElementById('chk-toggle-audio');
+const chkSettingsRumores = document.getElementById('chk-settings-rumores');
+const chkSettingsOceano = document.getElementById('chk-settings-oceano');
+const chkSettingsAudio = document.getElementById('chk-settings-audio');
 
 if (btnOpenSettings && modalSettings) {
     btnOpenSettings.addEventListener('click', () => {
-        const settings = currentState.globais.settings || { audioEnabled: true, mostrar_rumores: true };
-        if (chkToggleRumores) chkToggleRumores.checked = settings.mostrar_rumores !== false;
-        if (chkToggleAudio) chkToggleAudio.checked = settings.audioEnabled !== false;
+        const settings = currentState.globais.settings || { audioEnabled: true, mostrar_rumores: true, oceanAnimated: true };
+        if (chkSettingsRumores) chkSettingsRumores.checked = settings.mostrar_rumores !== false;
+        if (chkSettingsOceano) chkSettingsOceano.checked = settings.oceanAnimated !== false;
+        if (chkSettingsAudio) chkSettingsAudio.checked = settings.audioEnabled !== false;
         modalSettings.style.display = 'flex';
     });
 }
@@ -1631,10 +1644,10 @@ if (btnOpenSettings && modalSettings) {
 if (btnFecharSettings && modalSettings) {
     btnFecharSettings.addEventListener('click', () => {
         currentState.globais.settings = currentState.globais.settings || {};
-        if (chkToggleRumores) currentState.globais.settings.mostrar_rumores = chkToggleRumores.checked;
-        if (chkToggleAudio) {
-            currentState.globais.settings.audioEnabled = chkToggleAudio.checked;
-        }
+        if (chkSettingsRumores) currentState.globais.settings.mostrar_rumores = chkSettingsRumores.checked;
+        if (chkSettingsOceano) currentState.globais.settings.oceanAnimated = chkSettingsOceano.checked;
+        if (chkSettingsAudio) currentState.globais.settings.audioEnabled = chkSettingsAudio.checked;
+        
         modalSettings.style.display = 'none';
         updateInterface(currentState);
         saveGameState(currentState).catch(e => console.error(e));
@@ -2146,6 +2159,11 @@ function renderMapD3(state) {
 
     allPaths
         .attr("d", pathGenerator)
+        .attr("class", d => {
+            const estado = state.estados.find(e => e.id === d.id);
+            const isInv = estado && estado.status_territorio === "invadido";
+            return `state-path ${isInv ? 'invadido' : ''}`;
+        })
         .style("fill", d => {
             const estado = state.estados.find(e => e.id === d.id);
             if (!estado) return "var(--map-fill-pacificado, #a6e3a1)";
