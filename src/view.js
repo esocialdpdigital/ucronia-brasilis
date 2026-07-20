@@ -416,18 +416,22 @@ function atualizarProgressoEra(state) {
             const marcadoresExistentes = barraBg.querySelectorAll('.era-marcador');
             marcadoresExistentes.forEach(m => m.remove());
             
-            // Seleciona eventos da era atual
+            // Seleciona eventos da fila dinâmica, se existir, senão usa a estática
             let listaEventos = [];
-            if (era === 'colonial') {
-                listaEventos = eventosColoniais;
-            } else if (era === 'imperio' || era === 'republica') {
-                listaEventos = typeof eventosImperiais !== 'undefined' ? eventosImperiais : [];
+            if (state.globais.eventos_futuros && state.globais.eventos_futuros.length > 0) {
+                listaEventos = state.globais.eventos_futuros;
+            } else {
+                if (era === 'colonial') {
+                    listaEventos = eventosColoniais;
+                } else if (era === 'imperio' || era === 'republica') {
+                    listaEventos = typeof eventosImperiais !== 'undefined' ? eventosImperiais : [];
+                }
             }
 
-            // Agrupa eventos por ano para evitar marcadores sobrepostos
+            // Agrupa eventos por ano alvo
             const eventosPorAno = {};
             listaEventos.forEach(evt => {
-                const ano = evt.ano_fixo !== undefined ? evt.ano_fixo : (evt.condicao ? (evt.condicao.ano_fixo || evt.condicao.ano_minimo) : undefined);
+                const ano = evt.ano_target !== undefined ? evt.ano_target : (evt.ano_fixo !== undefined ? evt.ano_fixo : (evt.condicao ? (evt.condicao.ano_fixo || evt.condicao.ano_minimo) : undefined));
                 if (ano !== undefined) {
                     if (!eventosPorAno[ano]) {
                         eventosPorAno[ano] = [];
