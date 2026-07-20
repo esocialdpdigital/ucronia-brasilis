@@ -415,26 +415,46 @@ function atualizarProgressoEra(state) {
             const marcadoresExistentes = barraBg.querySelectorAll('.era-marcador');
             marcadoresExistentes.forEach(m => m.remove());
             
-            // Adiciona marcadores para os eventos da era atual
+            // Seleciona eventos da era atual
+            let listaEventos = [];
             if (era === 'colonial') {
-                eventosColoniais.forEach(evt => {
-                    if (evt.ano_fixo !== undefined) {
-                        const evtPct = ((evt.ano_fixo - limites.inicio) / totalAnos) * 100;
-                        if (evtPct >= 0 && evtPct <= 100) {
-                            const marcador = document.createElement('div');
-                            marcador.className = 'era-marcador';
-                            if (state.globais.ano_atual > evt.ano_fixo) {
-                                marcador.classList.add('passou');
-                            }
-                            marcador.style.left = `${evtPct}%`;
-                            marcador.setAttribute('data-tooltip', `${evt.ano_fixo}: ${evt.nome}`);
-                            barraBg.appendChild(marcador);
-                        }
+                listaEventos = eventosColoniais;
+            } else if (era === 'imperio' || era === 'republica') {
+                listaEventos = typeof eventosImperiais !== 'undefined' ? eventosImperiais : [];
+            }
+
+            // Agrupa eventos por ano para evitar marcadores sobrepostos
+            const eventosPorAno = {};
+            listaEventos.forEach(evt => {
+                const ano = evt.ano_fixo !== undefined ? evt.ano_fixo : (evt.condicao ? (evt.condicao.ano_fixo || evt.condicao.ano_minimo) : undefined);
+                if (ano !== undefined) {
+                    if (!eventosPorAno[ano]) {
+                        eventosPorAno[ano] = [];
                     }
-                });
+                    eventosPorAno[ano].push(evt.nome);
+                }
+            });
+
+            for (const [anoStr, nomes] of Object.entries(eventosPorAno)) {
+                const anoEvt = parseInt(anoStr, 10);
+                const evtPct = ((anoEvt - limites.inicio) / totalAnos) * 100;
+                if (evtPct >= 0 && evtPct <= 100) {
+                    const marcador = document.createElement('div');
+                    marcador.className = 'era-marcador';
+                    if (state.globais.ano_atual > anoEvt) {
+                        marcador.classList.add('passou');
+                    }
+                    marcador.style.left = `${evtPct}%`;
+                    const tooltipText = nomes.length > 1 
+                        ? `${anoEvt}: ${nomes.join(' / ')}`
+                        : `${anoEvt}: ${nomes[0]}`;
+                    marcador.setAttribute('data-tooltip', tooltipText);
+                    barraBg.appendChild(marcador);
+                }
             }
         }
     }
+
 }
 
 /**

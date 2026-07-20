@@ -199,7 +199,7 @@ export const eventosColoniais = [
     nome: "A França Equinocial e a Invasão do Maranhão",
     tipo: "bifurcacao",
     ano_fixo: 1612,
-    imagem: "assets/img/eventos/franca_antartica.png",
+    imagem: "assets/img/eventos/franca_equinocial.png",
     descricao: "Colonizadores franceses liderados por Daniel de La Touche fundam a colônia da França Equinocial no norte do Brasil e erguem o Forte de São Luís (Maranhão). A Coroa deve responder à ocupação francesa de terras portuguesas.",
     opcoes: [
       {
@@ -401,7 +401,7 @@ export const eventosColoniais = [
     nome: "O Tratado de Methuen (Panos e Vinhos)",
     tipo: "bifurcacao",
     ano_fixo: 1703,
-    imagem: "assets/img/eventos/uniao_iberica.png",
+    imagem: "assets/img/eventos/tratado_methuen.png",
     descricao: "Portugal e Inglaterra assinam o Tratado de Methuen, facilitando a entrada de vinhos portugueses na Inglaterra em troca de tecidos ingleses sem tarifas. Essa dependência ameaça inviabilizar manufaturas no Brasil e drena o ouro da colônia.",
     opcoes: [
       {
@@ -429,7 +429,7 @@ export const eventosColoniais = [
     nome: "O Tratado de Madrid e a Expansão de Fronteiras",
     tipo: "bifurcacao",
     ano_fixo: 1750,
-    imagem: "assets/img/eventos/ciclo_ouro_inconfidencia.png",
+    imagem: "assets/img/eventos/tratado_madrid.png",
     descricao: "Sob a mediação do Papa, as coroas de Espanha e Portugal assinam o Tratado de Madrid. Com base no Uti possidetis (quem possui de fato tem direito), as expedições dos bandeirantes e jesuítas garantem um novo mapa para o Brasil colonial. Precisamos fortificar as novas fronteiras ou focar no litoral.",
     opcoes: [
       {
@@ -494,7 +494,7 @@ export const eventosColoniais = [
     nome: "A Chegada da Família Real e a Abertura dos Portos",
     tipo: "bifurcacao",
     ano_fixo: 1808,
-    imagem: "assets/img/eventos/governo_geral.png",
+    imagem: "assets/img/eventos/chegada_familia_real.png",
     descricao: "Em fuga das tropas de Napoleão Bonaparte, D. João VI e toda a Corte portuguesa aportam no Brasil. Este evento histórico marca a inversão metropolitana: o Brasil passa a ser a sede de fato do Império Português.",
     opcoes: [
       {
@@ -549,7 +549,7 @@ export const eventosColoniais = [
     nome: "A Revolução Pernambucana de 1817",
     tipo: "bifurcacao",
     ano_fixo: 1817,
-    imagem: "assets/img/eventos/guerra_tamoios.png",
+    imagem: "assets/img/eventos/revolucao_pernambucana.png",
     descricao: "A insatisfação com a carga tributária imposta pela Corte no Rio de Janeiro e a grande seca local inflamam Recife. Liderados por proprietários de terras, padres e maçons, os rebeldes proclamam a República de Pernambuco. A estabilidade no Nordeste está ameaçada.",
     opcoes: [
       {
